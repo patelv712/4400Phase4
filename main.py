@@ -1,20 +1,18 @@
 import tkinter as tk
 from tkinter import messagebox
 import mysql.connector
+from home import *
 
-# Database connection
-def create_conn():
-    conn = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="YOURMYSQLPASSWORD",
-        database="employee_db"
-    )
-    return conn
+def main():
 
-# Main window
-root = tk.Tk()
-root.title("Airlane System")
+    db = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="liululu0201",
+            database="flight_management"
+        )
+    home(db)
+    db.close()
 
-# Start main loop
-root.mainloop()
+if __name__ == "__main__":
+    main()
