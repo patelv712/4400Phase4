@@ -35,19 +35,19 @@ class home:
         button2 = tk.Button(self.button_frame, text="Routes & Legs", width=20, height=2, command=self.routes)
         button2.grid(row=0, column=1, padx=10, pady=10)
 
-        button3 = tk.Button(self.button_frame, text="Pilots", width=20, height=2)
+        button3 = tk.Button(self.button_frame, text="Pilots", width=20, height=2, command=self.pilots)
         button3.grid(row=1, column=0, padx=10, pady=10)
 
         button4 = tk.Button(self.button_frame, text="Tickets", width=20, height=2, command=self.tickets)
         button4.grid(row=1, column=1, padx=10, pady=10)
 
-        button5 = tk.Button(self.button_frame, text="People", width=20, height=2)
+        button5 = tk.Button(self.button_frame, text="People", width=20, height=2, command=self.people)
         button5.grid(row=2, column=0, padx=10, pady=10)
 
         button6 = tk.Button(self.button_frame, text="Airports", width=20, height=2, command=self.airports)
         button6.grid(row=2, column=1, padx=10, pady=10)
 
-        button7 = tk.Button(self.button_frame, text="Flights", width=20, height=2)
+        button7 = tk.Button(self.button_frame, text="Flights", width=20, height=2, command=self.flights)
         button7.grid(row=3, column=0, padx=10, pady=10)
 
         button8 = tk.Button(self.button_frame, text="Views and Simulation Cycle", width=20, height=2, command=self.views)
@@ -112,7 +112,6 @@ class home:
         self.button_frame = tk.Frame(self.tickets)
         self.button_frame.pack(pady=10)
 
-
         button1 = tk.Button(self.button_frame, text="Add Tickets", width=20, height=2)
         button1.grid(row=0, column=0, padx=10, pady=10)
 
@@ -140,6 +139,60 @@ class home:
 
         button3 = tk.Button(self.button_frame, text="Add Routes and Legs", width=20, height=2)
         button3.grid(row=1, column=0, padx=10, pady=10)
+
+    '''
+        pilots
+    '''
+    def pilots(self):
+        self.pilots = tk.Tk()
+        self.pilots.title("Pilots")
+        self.pilots.geometry("800x600")
+
+        self.views_label = tk.Label(self.pilots, text="Pilots", font=("Arial", 20))
+        self.views_label.pack(pady=10)
+
+        # Create a frame to hold the buttons
+        self.button_frame = tk.Frame(self.pilots)
+        self.button_frame.pack(pady=10)
+
+        button1 = tk.Button(self.button_frame, text="Add Pilots", width=20, height=2)
+        button1.grid(row=0, column=0, padx=10, pady=10)
+
+    '''
+        people
+    '''
+    def people(self):
+        self.people = tk.Tk()
+        self.people.title("People")
+        self.people.geometry("800x600")
+
+        self.views_label = tk.Label(self.people, text="People", font=("Arial", 20))
+        self.views_label.pack(pady=10)
+
+        # Create a frame to hold the buttons
+        self.button_frame = tk.Frame(self.people)
+        self.button_frame.pack(pady=10)
+
+        button1 = tk.Button(self.button_frame, text="Add People", width=20, height=2)
+        button1.grid(row=0, column=0, padx=10, pady=10)
+
+    '''
+        flights
+    '''
+    def flights(self):
+        self.flights = tk.Tk()
+        self.flights.title("People")
+        self.flgihts.geometry("800x600")
+
+        self.views_label = tk.Label(self.flights, text="Flights", font=("Arial", 20))
+        self.views_label.pack(pady=10)
+
+        # Create a frame to hold the buttons
+        self.button_frame = tk.Frame(self.flights)
+        self.button_frame.pack(pady=10)
+
+        button1 = tk.Button(self.button_frame, text="Add Flights", width=20, height=2)
+        button1.grid(row=0, column=0, padx=10, pady=10)
 
     '''
         views
