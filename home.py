@@ -3,6 +3,9 @@ from tkinter import ttk
 from tkinter import messagebox
 import mysql.connector
 
+from storedViews import *
+from simulationCycle import *
+
 class home:
 
     def __init__(self, db):
@@ -154,23 +157,23 @@ class home:
         self.button_frame.pack(pady=10)
 
 
-        button1 = tk.Button(self.button_frame, text="V1 Flights in the air", width=20, height=2)
+        button1 = tk.Button(self.button_frame, text="V1 Flights in the air", width=20, height=2, command=lambda: display_flights_in_the_air(self.db))
         button1.grid(row=0, column=0, padx=10, pady=10)
 
-        button2 = tk.Button(self.button_frame, text="V2 Flights on the ground", width=20, height=2)
+        button2 = tk.Button(self.button_frame, text="V2 Flights on the ground", width=20, height=2, command=lambda: display_flights_on_the_ground(self.db))
         button2.grid(row=0, column=1, padx=10, pady=10)
 
-        button3 = tk.Button(self.button_frame, text="V3 People in the air", width=20, height=2)
+        button3 = tk.Button(self.button_frame, text="V3 People in the air", width=20, height=2, command=lambda: display_people_in_the_air(self.db))
         button3.grid(row=1, column=0, padx=10, pady=10)
 
-        button4 = tk.Button(self.button_frame, text="V4 People on the ground", width=20, height=2)
+        button4 = tk.Button(self.button_frame, text="V4 People on the ground", width=20, height=2, command=lambda: display_people_on_the_ground(self.db))
         button4.grid(row=1, column=1, padx=10, pady=10)
 
-        button5 = tk.Button(self.button_frame, text="V5 Route Summary", width=20, height=2)
+        button5 = tk.Button(self.button_frame, text="V5 Route Summary", width=20, height=2, command=lambda: display_route_summary(self.db))
         button5.grid(row=2, column=0, padx=10, pady=10)
 
-        button6 = tk.Button(self.button_frame, text="V6 Alternative airports", width=20, height=2)
+        button6 = tk.Button(self.button_frame, text="V6 Alternative airports", width=20, height=2, command=lambda: display_alternative_airports(self.db))
         button6.grid(row=2, column=1, padx=10, pady=10)
 
-        button7 = tk.Button(self.button_frame, text="Simulation Recycle", width=20, height=2)
+        button7 = tk.Button(self.button_frame, text="Simulation Recycle", width=20, height=2, command=lambda: simulation_cycle_window(self.db))
         button7.grid(row=3, column=0, padx=10, pady=10)
