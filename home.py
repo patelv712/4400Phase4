@@ -155,8 +155,14 @@ class home:
         self.button_frame = tk.Frame(self.pilots)
         self.button_frame.pack(pady=10)
 
-        button1 = tk.Button(self.button_frame, text="Add Pilots", width=20, height=2)
+        button1 = tk.Button(self.button_frame, text="Grant Pilot License", width=20, height=2)
         button1.grid(row=0, column=0, padx=10, pady=10)
+
+        button2 = tk.Button(self.button_frame, text="Remove Pilot", width=20, height=2)
+        button2.grid(row=0, column=1, padx=10, pady=10)        
+
+        # button2 = tk.Button(self.button_frame, text="Show Pilots", width=20, height=2, command=lambda: display_pilots(self.db))
+        # button2.grid(row=0, column=1, padx=10, pady=10)
 
     '''
         people
@@ -181,8 +187,8 @@ class home:
     '''
     def flights(self):
         self.flights = tk.Tk()
-        self.flights.title("People")
-        self.flgihts.geometry("800x600")
+        self.flights.title("Flights")
+        self.flights.geometry("800x600")
 
         self.views_label = tk.Label(self.flights, text="Flights", font=("Arial", 20))
         self.views_label.pack(pady=10)
@@ -194,6 +200,8 @@ class home:
         button1 = tk.Button(self.button_frame, text="Add Flights", width=20, height=2)
         button1.grid(row=0, column=0, padx=10, pady=10)
 
+        button2 = tk.Button(self.button_frame, text="Assign Pilot", width=20, height=2)
+        button2.grid(row=0, column=1, padx=10, pady=10)
     '''
         views
     '''
