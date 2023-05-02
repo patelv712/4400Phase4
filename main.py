@@ -8,7 +8,7 @@ def main():
     db = mysql.connector.connect(
             host="localhost",
             user="root",
-            password="Ahbbez@971016",
+            password="YOURPASSWORD",
             database="flight_management"
         )
     home(db)
