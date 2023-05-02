@@ -5,6 +5,7 @@ import mysql.connector
 
 from storedViews import *
 from simulationCycle import *
+from storedProcedures import *
 
 class home:
 
@@ -182,6 +183,26 @@ class home:
         button1 = tk.Button(self.button_frame, text="Add People", width=20, height=2)
         button1.grid(row=0, column=0, padx=10, pady=10)
 
+        button2 = tk.Button(self.button_frame, text = "Passengers Board", width=20, height=2, command = self.passenger_board)
+        button2.grid(row=0, column=1, padx=10, pady=10)
+
+    def passenger_board(self):
+        self.passenger_board = tk.Tk()
+        self.passenger_board.title ("Passenger_board")
+        self.passenger_board.geometry("500x250")
+
+        flightID = fetch_flightID (self.db)
+        sorted_flightID = sorted(flightID)
+        label_flightID = tk.Label(self.passenger_board, text = "flightID: ", bg="light grey")
+        label_flightID.grid (row = 0, column = 0, padx = 5, pady = 5, sticky = "e")
+        dropdown_flightID = ttk.Combobox (self.passenger_board, values = sorted_flightID)
+        dropdown_flightID.grid (row=0,column=1, padx=5, pady=5)
+
+        cancel_button = tk.Button(self.passenger_board, text="Cancel", command=self.passenger_board.destroy)
+        cancel_button.grid(row=4,column=0, columnspan=2,pady=100)
+        continue_button = tk.Button(self.passenger_board, text="Continue", command=lambda: 
+                                  stored_procedure_passenger_board(self.db,dropdown_flightID.get()))
+        continue_button.grid(row=4, column=2, columnspan=2, pady=100)
     '''
         flights
     '''
@@ -197,11 +218,124 @@ class home:
         self.button_frame = tk.Frame(self.flights)
         self.button_frame.pack(pady=10)
 
-        button1 = tk.Button(self.button_frame, text="Add Flights", width=20, height=2)
+        button1 = tk.Button(self.button_frame, text="Offer Flight", width=20, height=2, command = self.Offer_Flight)
         button1.grid(row=0, column=0, padx=10, pady=10)
 
-        button2 = tk.Button(self.button_frame, text="Assign Pilot", width=20, height=2)
+        button2 = tk.Button(self.button_frame, text="Flight Landing", width=20, height=2, command = self.flight_landing)
         button2.grid(row=0, column=1, padx=10, pady=10)
+
+        button2 = tk.Button(self.button_frame, text="Flight Takeoff", width=20, height=2, command = self.flight_takeoff)
+        button2.grid(row=1, column=0, padx=10, pady=10)
+
+        button2 = tk.Button(self.button_frame, text="Retire Flight", width=20, height=2, command = self.retire_flight)
+        button2.grid(row=1, column=1, padx=10, pady=10)
+
+
+
+    # stored procedure 5#
+    def Offer_Flight(self):
+        self.Offer_Flight = tk.Tk()
+        self.Offer_Flight.title ("Offer Flight")
+        self.Offer_Flight.geometry("700x400")
+
+        label_flightID = tk.Label(self.Offer_Flight, text = "FlightID: ")
+        label_flightID.grid (row = 0, column = 0, padx = 5, pady = 5, sticky = "e")
+        entry_flightID = tk.Entry(self.Offer_Flight)
+        entry_flightID.grid (row=0, column=1, padx=5, pady=5)
+
+        label_routeID = tk.Label(self.Offer_Flight, text="routeID: ")
+        label_routeID.grid(row = 1, column= 0, padx=5, pady=5, sticky="e")
+        entry_routeID = tk.Entry(self.Offer_Flight)
+        entry_routeID.grid (row=1, column=1, padx=5, pady=5)
+
+        label_support_tail = tk.Label(self.Offer_Flight, text="support_tail: ")
+        label_support_tail.grid(row = 0, column=2, padx=20, pady=5, sticky="e")
+        entry_support_tail = tk.Entry(self.Offer_Flight)
+        entry_support_tail.grid (row=0, column=3, padx=5, pady=5)
+
+        label_progress = tk.Label(self.Offer_Flight, text="progress: ")
+        label_progress.grid(row=1, column=2, padx=20, pady=5, sticky="e")
+        entry_progress = tk.Entry(self.Offer_Flight)
+        entry_progress.grid (row=1, column=3, padx=5, pady=5)
+
+        label_next_time = tk.Label (self.Offer_Flight, text="next_time: ")
+        label_next_time.grid (row=3,column=2, padx=5, pady=5, sticky = "e")
+        entry_next_time = tk.Entry (self.Offer_Flight)
+        entry_next_time.grid (row=3,column=3, padx=5,pady=5)
+
+        support_airlineID = fetch_airlineID (self.db)
+        sorted_support_airline = sorted(support_airlineID)
+        label_support_airline = tk.Label(self.Offer_Flight, text="support_airline")
+        label_support_airline.grid(row=2,column=0,padx=5,pady=5)
+        dropdown_support_airline = ttk.Combobox (self.Offer_Flight, values = sorted_support_airline)
+        dropdown_support_airline.grid (row=2,column=1, padx=5, pady=5)
+
+        sorted_airplane_status = ["on_ground", "in_flight"]
+        label_airplane_status = tk.Label(self.Offer_Flight, text="airplane_status")
+        label_airplane_status.grid(row=2,column=2,padx=5,pady=5)
+        dropdown_airplane_status = ttk.Combobox (self.Offer_Flight, values = sorted_airplane_status)
+        dropdown_airplane_status.grid (row=2,column=3, padx=5, pady=5)
+
+        cancel_button = tk.Button(self.Offer_Flight, text="Cancel", command=self.Offer_Flight.destroy)
+        cancel_button.grid(row=4,column=0, columnspan=2,pady=10)
+        submit_button = tk.Button(self.Offer_Flight, text="Submit", command=lambda: 
+                                  stored_procedure_offer_flight (self.db,
+                                                entry_flightID.get(),
+                                                entry_routeID.get(), 
+                                                dropdown_support_airline.get(),
+                                                entry_support_tail.get(), 
+                                                entry_progress.get(),
+                                                dropdown_airplane_status.get(),
+                                                entry_next_time.get()))
+        submit_button.grid(row=4, column=2, columnspan=2, pady=10)
+    
+    def flight_landing(self):
+        self.flight_landing = tk.Tk()
+        self.flight_landing.title ("Flight_Landing")
+        self.flight_landing.geometry("600x300")
+
+        label_flightID = tk.Label(self.flight_landing, text = "flightID: ", bg="light grey")
+        label_flightID.grid (row = 0, column = 0, padx = 5, pady = 5, sticky = "e")
+        entry_flightID = tk.Entry(self.flight_landing)
+        entry_flightID.grid (row=0, column=1, padx=5, pady=5)
+
+        cancel_button = tk.Button(self.flight_landing, text="Cancel", command=self.flight_landing.destroy)
+        cancel_button.grid(row=4,column=0, columnspan=2,pady=100)
+        submit_button = tk.Button(self.flight_landing, text="Update", command=lambda: 
+                                  stored_procedure_flight_landing(self.db, entry_flightID.get()))
+        submit_button.grid(row=4, column=2, columnspan=2, pady=100)
+
+    def flight_takeoff(self):
+        self.flight_takeoff = tk.Tk()
+        self.flight_takeoff.title ("Flight_Takeoff")
+        self.flight_takeoff.geometry("500x250")
+
+        label_flightID = tk.Label(self.flight_takeoff, text = "flightID: ", bg="light grey")
+        label_flightID.grid (row = 0, column = 0, padx = 5, pady = 5, sticky = "e")
+        entry_flightID = tk.Entry(self.flight_takeoff)
+        entry_flightID.grid (row=0, column=1, padx=5, pady=5)
+
+        cancel_button = tk.Button(self.flight_takeoff, text="Cancel", command=self.flight_takeoff.destroy)
+        cancel_button.grid(row=4,column=0, columnspan=2,pady=100)
+        submit_button = tk.Button(self.flight_takeoff, text="Update", command=lambda: 
+                                  stored_procedure_flight_takeoff(self.db,entry_flightID.get()))
+        submit_button.grid(row=4, column=2, columnspan=2, pady=100)
+
+    def retire_flight(self):
+        self.retire_flight = tk.Tk()
+        self.retire_flight.title ("Retire_Flight")
+        self.retire_flight.geometry("500x250")
+
+        label_flightID = tk.Label(self.retire_flight, text = "flightID: ", bg="light grey")
+        label_flightID.grid (row = 0, column = 0, padx = 5, pady = 5, sticky = "e")
+        entry_flightID = tk.Entry(self.retire_flight)
+        entry_flightID.grid (row=0, column=1, padx=5, pady=5)
+
+        cancel_button = tk.Button(self.retire_flight, text="Cancel", command=self.retire_flight.destroy)
+        cancel_button.grid(row=4,column=0, columnspan=2,pady=100)
+        submit_button = tk.Button(self.retire_flight, text="Update", command=lambda: 
+                                  stored_procedure_retire_flight(self.db,entry_flightID.get()))
+        submit_button.grid(row=4, column=2, columnspan=2, pady=100)
     '''
         views
     '''
