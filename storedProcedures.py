@@ -134,3 +134,9 @@ def stored_procedure_remove_passenger_role (db, personID):
     db.commit()
     result = cursor.fetchall()
     db.commit()
+
+
+
+
+
+

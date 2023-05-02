@@ -119,6 +119,9 @@ class home:
     '''
         Routes & Legs
     '''
+
+
+
     def routes(self):
         self.routes = tk.Tk()
         self.routes.title("Routes & Legs")
@@ -138,8 +141,54 @@ class home:
         button2 = tk.Button(self.button_frame, text="Add Legs", width=20, height=2)
         button2.grid(row=0, column=1, padx=10, pady=10)
 
-        button3 = tk.Button(self.button_frame, text="Add Routes and Legs", width=20, height=2)
+        button3 = tk.Button(self.button_frame, text="Extend Route", width=20, height=2, command=self.open_extend_route_page)
         button3.grid(row=1, column=0, padx=10, pady=10)
+
+    '''
+           Query 9 Extend Route
+    '''
+    def open_extend_route_page(self):
+        self.extend_route_window = tk.Toplevel()
+        self.extend_route_window.title("Extend Route")
+
+        # Create labels and input fields
+        route_id_label = tk.Label(self.extend_route_window, text="Route ID:")
+        route_id_entry = tk.Entry(self.extend_route_window)
+        route_id_label.grid(row=0, column=0, padx=5, pady=5)
+        route_id_entry.grid(row=0, column=1, padx=5, pady=5)
+
+        leg_id_label = tk.Label(self.extend_route_window, text="Leg ID:")
+        leg_id_dropdown = ttk.Combobox(self.extend_route_window)
+        leg_id_label.grid(row=1, column=0, padx=5, pady=5)
+        leg_id_dropdown.grid(row=1, column=1, padx=5, pady=5)
+
+        # Populate the dropdown with legIDs from the database
+        leg_ids = self.get_leg_ids()
+        leg_id_dropdown['values'] = leg_ids
+
+        # Create buttons
+        submit_button = tk.Button(self.extend_route_window, text="Submit",
+                                  command=lambda: self.extend_route(route_id_entry.get(), leg_id_dropdown.get()))
+        cancel_button = tk.Button(self.extend_route_window, text="Cancel", command=self.extend_route_window.destroy)
+        submit_button.grid(row=2, column=0, padx=5, pady=5)
+        cancel_button.grid(row=2, column=1, padx=5, pady=5)
+
+    def get_leg_ids(self):
+        cursor = self.db.cursor()
+        cursor.execute("SELECT legID FROM leg;")
+        leg_ids = [row[0] for row in cursor.fetchall()]
+        return leg_ids
+
+    def extend_route(self, route_id, leg_id):
+        cursor = self.db.cursor()
+        try:
+            cursor.callproc("extend_route", [route_id, leg_id])
+            self.db.commit()
+            messagebox.showinfo("Success", "Route extended successfully.")
+            self.extend_route_window.destroy()
+        except Exception as e:
+            self.db.rollback()
+            messagebox.showerror("Error", f"Error extending route: {e}")
 
     '''
         pilots
@@ -183,7 +232,7 @@ class home:
         self.button_frame = tk.Frame(self.people)
         self.button_frame.pack(pady=10)
 
-        button1 = tk.Button(self.button_frame, text="Add People", width=20, height=2)
+        button1 = tk.Button(self.button_frame, text="Add People", width=20, height=2, command=self.open_add_people_page)
         button1.grid(row=0, column=0, padx=10, pady=10)
 
         button2 = tk.Button(self.button_frame, text = "Passengers Board", width=20, height=2, command = self.passenger_board)
@@ -194,6 +243,85 @@ class home:
 
         button4 = tk.Button(self.button_frame, text = "Remove Passengers Role", width=20, height=2, command = self.Remove_Passenger_Role)
         button4.grid(row=1, column=1, padx=10, pady=10)
+
+    '''
+            add person
+    '''
+
+    def open_add_people_page(self):
+        add_people_page = tk.Toplevel(self.mainpage)
+        add_people_page.title("Add People")
+        add_people_page.geometry("400x300")
+
+        tk.Label(add_people_page, text="Person ID:").grid(row=0, column=0, sticky="e")
+        person_id_entry = tk.Entry(add_people_page)
+        person_id_entry.grid(row=0, column=1)
+
+        tk.Label(add_people_page, text="First Name:").grid(row=1, column=0, sticky="e")
+        first_name_entry = tk.Entry(add_people_page)
+        first_name_entry.grid(row=1, column=1)
+
+        tk.Label(add_people_page, text="Last Name:").grid(row=2, column=0, sticky="e")
+        last_name_entry = tk.Entry(add_people_page)
+        last_name_entry.grid(row=2, column=1)
+
+        tk.Label(add_people_page, text="Location ID:").grid(row=3, column=0, sticky="e")
+        location_id_entry = tk.Entry(add_people_page)
+        location_id_entry.grid(row=3, column=1)
+
+        tk.Label(add_people_page, text="Tax ID:").grid(row=4, column=0, sticky="e")
+        tax_id_entry = tk.Entry(add_people_page)
+        tax_id_entry.grid(row=4, column=1)
+
+        tk.Label(add_people_page, text="Experience:").grid(row=5, column=0, sticky="e")
+        experience_entry = tk.Entry(add_people_page)
+        experience_entry.grid(row=5, column=1)
+
+        tk.Label(add_people_page, text="Flying Airline:").grid(row=6, column=0, sticky="e")
+        flying_airline_entry = tk.Entry(add_people_page)
+        flying_airline_entry.grid(row=6, column=1)
+
+        tk.Label(add_people_page, text="Flying Tail:").grid(row=7, column=0, sticky="e")
+        flying_tail_entry = tk.Entry(add_people_page)
+        flying_tail_entry.grid(row=7, column=1)
+
+        tk.Label(add_people_page, text="Miles:").grid(row=8, column=0, sticky="e")
+        miles_entry = tk.Entry(add_people_page)
+        miles_entry.grid(row=8, column=1)
+
+        submit_button = tk.Button(add_people_page, text="Submit",
+                                  command=lambda: self.add_person_to_db(add_people_page, person_id_entry,
+                                                                        first_name_entry, last_name_entry,
+                                                                        location_id_entry, tax_id_entry,
+                                                                        experience_entry, flying_airline_entry,
+                                                                        flying_tail_entry, miles_entry))
+        submit_button.grid(row=9, column=0, columnspan=2)
+
+    def add_person_to_db(self, add_people_page, person_id_entry, first_name_entry, last_name_entry, location_id_entry,
+                         tax_id_entry, experience_entry, flying_airline_entry, flying_tail_entry, miles_entry):
+        person_id = person_id_entry.get()
+        first_name = first_name_entry.get()
+        last_name = last_name_entry.get()
+        location_id = location_id_entry.get()
+        tax_id = tax_id_entry.get()
+        experience = int(experience_entry.get()) if experience_entry.get() else None
+        flying_airline = flying_airline_entry.get()
+        flying_tail = flying_tail_entry.get()
+        miles = int(miles_entry.get()) if miles_entry.get() else None
+
+        cursor = self.db.cursor()
+
+        try:
+            cursor.callproc("add_person",
+                            [person_id, first_name, last_name, location_id, tax_id, experience, flying_airline,
+                             flying_tail, miles])
+            self.db.commit()
+            messagebox.showinfo("Success", "Person added successfully!")
+            add_people_page.destroy()
+        except mysql.connector.Error as e:
+            messagebox.showerror("Error", f"Error adding person: {e}")
+        finally:
+            cursor.close()
 
     def passenger_board(self):
         self.passenger_board = tk.Tk()
