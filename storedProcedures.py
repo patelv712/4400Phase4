@@ -1,5 +1,20 @@
 import tkinter as tk
 from tkinter import ttk
+
+def fetch_personID (db):
+    query = "Select personID from person"
+    cursor = db.cursor()
+    cursor.execute(query)
+    persons = cursor.fetchall()
+    return [person[0] for person in persons]
+
+def fetch_license_type (db):
+    query = "Select distinct license from pilot_licenses"
+    cursor = db.cursor()
+    cursor.execute(query)
+    pilot_licenses = cursor.fetchall()
+    return [pilot_license[0] for pilot_license in pilot_licenses]
+
 def fetch_airlineID (db):
     query = "Select airlineID from airline"
     cursor = db.cursor()
@@ -61,6 +76,60 @@ def stored_procedure_passenger_board(db,flightID):
     cursor = db.cursor()
     sql_query = "Call passengers_board(%s)"
     parameters = (flightID,)
+    cursor.execute(sql_query, parameters)
+    db.commit()
+    result = cursor.fetchall()
+    db.commit()
+
+def stored_procedure_grant_pilot_license (db, personID, license):
+    cursor =db.cursor()
+    sql_query = "CALL grant_pilot_license(%s, %s)"
+    parameters = (personID, license)
+    cursor.execute(sql_query, parameters)
+    db.commit()
+    result = cursor.fetchall()
+    db.commit()
+
+def stored_procedure_assign_pilot (db, flightID, personID):
+    cursor =db.cursor()
+    sql_query = "CALL assign_pilot(%s, %s)"
+    parameters = (flightID, personID)
+    cursor.execute(sql_query, parameters)
+    db.commit()
+    result = cursor.fetchall()
+    db.commit()
+
+def stored_procedure_recycle_crew (db, flightID):
+    cursor =db.cursor()
+    sql_query = "CALL recycle_crew(%s)"
+    parameters = (flightID)
+    cursor.execute(sql_query, parameters)
+    db.commit()
+    result = cursor.fetchall()
+    db.commit()
+
+def stored_procedure_remove_pilot_role (db, personID):
+    cursor =db.cursor()
+    sql_query = "CALL remove_pilot_role(%s)"
+    parameters = (personID)
+    cursor.execute(sql_query, parameters)
+    db.commit()
+    result = cursor.fetchall()
+    db.commit()
+
+def stored_procedure_passengers_disembark (db, flightID):
+    cursor =db.cursor()
+    sql_query = "CALL passengers_disembark(%s)"
+    parameters = (flightID)
+    cursor.execute(sql_query, parameters)
+    db.commit()
+    result = cursor.fetchall()
+    db.commit()
+
+def stored_procedure_remove_passenger_role (db, personID):
+    cursor =db.cursor()
+    sql_query = "CALL remove_passenger_role(%s)"
+    parameters = (personID)
     cursor.execute(sql_query, parameters)
     db.commit()
     result = cursor.fetchall()
