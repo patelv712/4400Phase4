@@ -1,5 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
+import mysql.connector
 
 def fetch_personID (db):
     query = "Select personID from person"
@@ -35,6 +37,55 @@ def fetch_flightID (db):
     cursor.execute(query)
     flightIDs = cursor.fetchall()
     return [flightID[0] for flightID in flightIDs]
+
+#6
+def stored_procedure_purchase_ticket_and_seat(db, ticketID, cost, carrier, customer, deplane_at, seat_number):
+    cursor = db.cursor()
+    if not ticketID:
+        messagebox.showerror("Error", "Ticket ID cannot be empty.")
+        return
+    try:
+        parameters = (ticketID, cost, carrier, customer, deplane_at, seat_number)
+        cursor.callproc("purchase_ticket_and_seat", parameters)
+        db.commit()
+        messagebox.showinfo("Success", "Ticket booked successfully")
+    except mysql.connector.Error as e:
+        messagebox.showerror("Error", f"Error purchasing ticket/seat: {e}")
+    finally:
+        cursor.close()
+
+#7
+def stored_procedure_update_leg(db, legID, distance, departure, arrival):
+    cursor = db.cursor()
+    if not legID:
+        messagebox.showerror("Error", "Leg ID cannot be empty.")
+        return
+    try:
+        parameters = (legID, distance, departure, arrival)
+        cursor.callproc("add_update_leg", parameters)
+        db.commit()
+        messagebox.showinfo("Success", "Updated Leg")
+    except mysql.connector.Error as e:
+        messagebox.showerror("Error", f"Error updating leg: {e}")
+    finally:
+        cursor.close()
+    
+
+#8
+def stored_procedure_start_route(db, routeID, legID):
+    cursor = db.cursor()
+    if not routeID:
+        messagebox.showerror("Error", "Route ID cannot be empty.")
+        return
+    try:
+        parameters = (routeID, legID)
+        cursor.callproc("start_route", parameters)
+        db.commit()
+        messagebox.showinfo("Success", "Start Route")
+    except mysql.connector.Error as e:
+        messagebox.showerror("Error", f"Error starting route: {e}")
+    finally:
+        cursor.close()
 
 def stored_procedure_offer_flight(db, flightID, routeID, support_airline, support_tail, progress, airplane_status, next_time):
     cursor = db.cursor()

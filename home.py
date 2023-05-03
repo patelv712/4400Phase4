@@ -77,7 +77,7 @@ class home:
         self.button_frame.pack(pady=10)
 
 
-        button1 = tk.Button(self.button_frame, text="Add Airplane", width=20, height=2)
+        button1 = tk.Button(self.button_frame, text="Add Airplane", width=20, height=2, command = self.add_airplane)
         button1.grid(row=0, column=0, padx=10, pady=10)
     '''
         airports
@@ -95,7 +95,7 @@ class home:
         self.button_frame.pack(pady=10)
 
 
-        button1 = tk.Button(self.button_frame, text="Add Airport", width=20, height=2)
+        button1 = tk.Button(self.button_frame, text="Add Airport", width=20, height=2, command = self.add_airport)
         button1.grid(row=0, column=0, padx=10, pady=10)
 
     '''
@@ -113,7 +113,7 @@ class home:
         self.button_frame = tk.Frame(self.tickets)
         self.button_frame.pack(pady=10)
 
-        button1 = tk.Button(self.button_frame, text="Add Tickets", width=20, height=2)
+        button1 = tk.Button(self.button_frame, text="Purchase Ticket and Seat", width=20, height=2, command = self.purchase_ticket_and_seat)
         button1.grid(row=0, column=0, padx=10, pady=10)
 
     '''
@@ -135,15 +135,259 @@ class home:
         self.button_frame.pack(pady=10)
 
 
-        button1 = tk.Button(self.button_frame, text="Add Route", width=20, height=2)
+        button1 = tk.Button(self.button_frame, text="Start Route", width=20, height=2, command =self.start_route)
         button1.grid(row=0, column=0, padx=10, pady=10)
 
-        button2 = tk.Button(self.button_frame, text="Add Legs", width=20, height=2)
+        button2 = tk.Button(self.button_frame, text="Update Leg", width=20, height=2, command = self.add_update_leg)
         button2.grid(row=0, column=1, padx=10, pady=10)
 
         button3 = tk.Button(self.button_frame, text="Extend Route", width=20, height=2, command=self.open_extend_route_page)
         button3.grid(row=1, column=0, padx=10, pady=10)
 
+    #1
+    def add_airplane(self):
+        add_airplane = tk.Toplevel(self.mainpage)
+        add_airplane.title("Add Airplane")
+        add_airplane.geometry("400x300")
+
+        tk.Label(add_airplane, text="Airplane ID:").grid(row=0, column=0, sticky="e")
+        airplane_id_entry = tk.Entry(add_airplane)
+        airplane_id_entry.grid(row=0, column=1)
+
+        tk.Label(add_airplane, text="Tail Num:").grid(row=1, column=0, sticky="e")
+        tail_num_entry = tk.Entry(add_airplane)
+        tail_num_entry.grid(row=1, column=1)
+
+        tk.Label(add_airplane, text="Seat Capcity:").grid(row=2, column=0, sticky="e")
+        seat_capacity_entry = tk.Entry(add_airplane)
+        seat_capacity_entry.grid(row=2, column=1)
+
+        tk.Label(add_airplane, text="Speed:").grid(row=3, column=0, sticky="e")
+        speed_entry = tk.Entry(add_airplane)
+        speed_entry.grid(row=3, column=1)
+
+        tk.Label(add_airplane, text="Location ID:").grid(row=4, column=0, sticky="e")
+        location_id_entry = tk.Entry(add_airplane)
+        location_id_entry.grid(row=4, column=1)
+
+        tk.Label(add_airplane, text="Plane Type:").grid(row=5, column=0, sticky="e")
+        plane_type_entry = tk.Entry(add_airplane)
+        plane_type_entry.grid(row=5, column=1)
+
+        #boolean
+        tk.Label(add_airplane, text="Skids:").grid(row=6, column=0, sticky="e")
+        skids_entry = tk.Entry(add_airplane)
+        skids_entry.grid(row=6, column=1)
+
+        tk.Label(add_airplane, text="Propellers:").grid(row=7, column=0, sticky="e")
+        propellers_entry = tk.Entry(add_airplane)
+        propellers_entry.grid(row=7, column=1)
+
+        tk.Label(add_airplane, text="Jet Engines:").grid(row=8, column=0, sticky="e")
+        jet_engines_entry = tk.Entry(add_airplane)
+        jet_engines_entry.grid(row=8, column=1)
+        submit_button = tk.Button(add_airplane, text="Submit",
+                                  command=lambda: self.add_airplane_to_db(add_airplane, airplane_id_entry,
+                                                                        tail_num_entry, seat_capacity_entry,
+                                                                        speed_entry, location_id_entry,
+                                                                        plane_type_entry, skids_entry,
+                                                                        propellers_entry, jet_engines_entry))
+        submit_button.grid(row=9, column=0, columnspan=2)
+
+    def add_airplane_to_db(self, add_airplane, airplane_id_entry, tail_num_entry, seat_capacity_entry, speed_entry,
+                         location_id_entry, plane_type_entry, skids_entry, propellers_entry, jet_engines_entry):
+        airplane_id = airplane_id_entry.get()
+        if not airplane_id:
+            messagebox.showerror("Error", "Airplane ID cannot be empty.")
+            return
+        tail_num = tail_num_entry.get()
+        seat_capcity = int(seat_capacity_entry.get()) if seat_capacity_entry.get() else None
+        speed = int(speed_entry.get()) if speed_entry.get() else None
+        location_id = location_id_entry.get()
+        plane_type = plane_type_entry.get()
+        skids = skids_entry.get()
+        propellers = int(propellers_entry.get()) if propellers_entry.get() else None
+        jet_engines = int(jet_engines_entry.get()) if jet_engines_entry.get() else None
+
+        cursor = self.db.cursor()
+
+        try:
+            cursor.callproc("add_airplane",
+                            [airplane_id, tail_num, seat_capcity, speed, location_id, plane_type, skids,
+                             propellers, jet_engines])
+            self.db.commit()
+            messagebox.showinfo("Success", "Airplane added successfully!")
+            add_airplane.destroy()
+        except mysql.connector.Error as e:
+            messagebox.showerror("Error", f"Error adding airplane: {e}")
+        finally:
+            cursor.close()
+
+    #2
+    def add_airport(self):
+        add_airport = tk.Toplevel(self.mainpage)
+        add_airport.title("Add Airport")
+        add_airport.geometry("400x300")
+
+        tk.Label(add_airport, text="Airport ID:").grid(row=0, column=0, sticky="e")
+        airport_id_entry = tk.Entry(add_airport)
+        airport_id_entry.grid(row=0, column=1)
+
+        tk.Label(add_airport, text="Airport Name:").grid(row=1, column=0, sticky="e")
+        airport_name_entry = tk.Entry(add_airport)
+        airport_name_entry.grid(row=1, column=1)
+
+        tk.Label(add_airport, text="City:").grid(row=2, column=0, sticky="e")
+        city_entry = tk.Entry(add_airport)
+        city_entry.grid(row=2, column=1)
+
+        tk.Label(add_airport, text="State:").grid(row=3, column=0, sticky="e")
+        state_entry = tk.Entry(add_airport)
+        state_entry.grid(row=3, column=1)
+
+        tk.Label(add_airport, text="Location ID:").grid(row=4, column=0, sticky="e")
+        location_id_entry = tk.Entry(add_airport)
+        location_id_entry.grid(row=4, column=1)
+
+        submit_button = tk.Button(add_airport, text="Submit",
+                                  command=lambda: self.add_airport_to_db(add_airport,airport_id_entry, airport_name_entry,
+                                                                        city_entry, state_entry,
+                                                                        location_id_entry))
+        submit_button.grid(row=9, column=0, columnspan=2)
+
+    def add_airport_to_db(self, add_airport,airport_id_entry, airport_name_entry, city_entry, state_entry,location_id_entry):
+        airport_id = airport_id_entry.get()
+        if not airport_id:
+            messagebox.showerror("Error", "Aiport ID cannot be empty.")
+            return
+        airport_name = airport_name_entry.get()
+        city = city_entry.get()
+        state = state_entry.get()
+        location_id = location_id_entry.get()
+
+        cursor = self.db.cursor()
+
+        try:
+            cursor.callproc("add_airport",
+                            [airport_id, airport_name, city, state, location_id])
+            self.db.commit()
+            messagebox.showinfo("Success", "Airport added successfully!")
+            add_airport.destroy()
+        except mysql.connector.Error as e:
+            messagebox.showerror("Error", f"Error adding airport: {e}")
+        finally:
+            cursor.close()
+
+
+    #6
+    def purchase_ticket_and_seat(self):
+        self.purchase_ticket_and_seat = tk.Tk()
+        self.purchase_ticket_and_seat.title ("Purchase Ticket and Seat")
+        self.purchase_ticket_and_seat.geometry("700x400")
+
+        label_ticketID = tk.Label(self.purchase_ticket_and_seat, text = "TicketID: ")
+        label_ticketID.grid (row = 0, column = 0, padx = 5, pady = 5, sticky = "e")
+        entry_ticketID = tk.Entry(self.purchase_ticket_and_seat)
+        entry_ticketID.grid (row=0, column=1, padx=5, pady=5)
+
+        label_cost = tk.Label(self.purchase_ticket_and_seat, text="cost: ")
+        label_cost.grid(row = 1, column= 0, padx=5, pady=5, sticky="e")
+        entry_cost = tk.Entry(self.purchase_ticket_and_seat)
+        entry_cost.grid (row=1, column=1, padx=5, pady=5)
+
+        label_carrier = tk.Label(self.purchase_ticket_and_seat, text="carrier: ")
+        label_carrier.grid(row = 0, column=2, padx=20, pady=5, sticky="e")
+        entry_carrier = tk.Entry(self.purchase_ticket_and_seat)
+        entry_carrier.grid (row=0, column=3, padx=5, pady=5)
+
+        label_customer = tk.Label(self.purchase_ticket_and_seat, text="customer: ")
+        label_customer.grid(row=1, column=2, padx=20, pady=5, sticky="e")
+        entry_customer = tk.Entry(self.purchase_ticket_and_seat)
+        entry_customer.grid (row=1, column=3, padx=5, pady=5)
+
+        label_deplane_at = tk.Label (self.purchase_ticket_and_seat, text="deplane at: ")
+        label_deplane_at.grid (row=3,column=2, padx=5, pady=5, sticky = "e")
+        entry_deplane_at = tk.Entry (self.purchase_ticket_and_seat)
+        entry_deplane_at.grid (row=3,column=3, padx=5,pady=5)
+    
+        label_seat_number = tk.Label (self.purchase_ticket_and_seat, text="seat number: ")
+        label_seat_number.grid (row=3,column=2, padx=5, pady=5, sticky = "e")
+        entry_seat_number = tk.Entry (self.purchase_ticket_and_seat)
+        entry_seat_number.grid (row=3,column=3, padx=5,pady=5)
+
+
+
+        cancel_button = tk.Button(self.purchase_ticket_and_seat, text="Cancel", command=self.purchase_ticket_and_seat.destroy)
+        cancel_button.grid(row=4,column=0, columnspan=2,pady=10)
+
+        submit_button = tk.Button(self.purchase_ticket_and_seat, text="Submit", command=lambda: 
+                                  stored_procedure_purchase_ticket_and_seat (self.db,
+                                                entry_ticketID.get(),
+                                                entry_cost.get(), 
+                                                entry_carrier.get(),
+                                                entry_customer.get(), 
+                                                entry_deplane_at.get(),
+                                                entry_seat_number.get()))
+        submit_button.grid(row=4, column=2, columnspan=2, pady=10)
+
+
+        cursor = self.db.cursor()
+
+    #7
+    def add_update_leg(self):
+        self.add_update_leg = tk.Tk()
+        self.add_update_leg.title ("Update Leg")
+        self.add_update_leg.geometry("600x300")
+
+        label_legID = tk.Label(self.add_update_leg, text = "leg id: ")
+        label_legID.grid (row = 0, column = 0, padx = 5, pady = 5, sticky = "e")
+        entry_legID = tk.Entry(self.add_update_leg)
+        entry_legID.grid (row=0, column=1, padx=5, pady=5)
+
+        label_distance = tk.Label(self.add_update_leg, text="distance: ")
+        label_distance.grid(row = 1, column= 0, padx=5, pady=5, sticky="e")
+        entry_distance = tk.Entry(self.add_update_leg)
+        entry_distance.grid (row=1, column=1, padx=5, pady=5)
+
+        label_departure = tk.Label(self.add_update_leg, text="departure: ")
+        label_departure.grid(row = 0, column=2, padx=20, pady=5, sticky="e")
+        entry_departure = tk.Entry(self.add_update_leg)
+        entry_departure.grid (row=0, column=3, padx=5, pady=5)
+
+        label_arrival = tk.Label(self.add_update_leg, text="arrival: ")
+        label_arrival.grid(row=1, column=2, padx=20, pady=5, sticky="e")
+        entry_arrival = tk.Entry(self.add_update_leg)
+        entry_arrival.grid (row=1, column=3, padx=5, pady=5)
+
+        cancel_button = tk.Button(self.add_update_leg, text="Cancel", command=self.add_update_leg.destroy)
+        cancel_button.grid(row=4,column=0, columnspan=2,pady=100)
+        submit_button = tk.Button(self.add_update_leg, text="Update", command=lambda: 
+                                  stored_procedure_update_leg(self.db, entry_legID.get(), entry_distance.get(), entry_departure.get(),entry_arrival.get() ))
+        submit_button.grid(row=4, column=2, columnspan=2, pady=100)
+
+    #8
+    def start_route(self):
+        self.start_route = tk.Tk()
+        self.start_route.title ("Start Route")
+        self.start_route.geometry("600x300")
+
+
+        label_routeID = tk.Label(self.start_route, text="route id: ")
+        label_routeID.grid(row = 0, column= 0, padx=5, pady=5, sticky="e")
+        entry_routeID = tk.Entry(self.start_route)
+        entry_routeID.grid (row=0, column=1, padx=5, pady=5)
+
+
+        label_legID = tk.Label(self.start_route, text = "leg id: ")
+        label_legID.grid (row = 1, column = 0, padx = 5, pady = 5, sticky = "e")
+        entry_legID = tk.Entry(self.start_route)
+        entry_legID.grid (row=1, column=1, padx=5, pady=5)
+
+        cancel_button = tk.Button(self.start_route, text="Cancel", command=self.start_route.destroy)
+        cancel_button.grid(row=4,column=0, columnspan=2,pady=100)
+        submit_button = tk.Button(self.start_route, text="Update", command=lambda: 
+                                  stored_procedure_start_route(self.db, entry_routeID.get(), entry_legID.get()))
+        submit_button.grid(row=4, column=2, columnspan=2, pady=100)
     '''
            Query 9 Extend Route
     '''
