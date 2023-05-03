@@ -81,60 +81,90 @@ def stored_procedure_passenger_board(db,flightID):
     result = cursor.fetchall()
     db.commit()
 
-def stored_procedure_grant_pilot_license (db, personID, license):
-    cursor =db.cursor()
-    sql_query = "CALL grant_pilot_license(%s, %s)"
-    parameters = (personID, license)
-    cursor.execute(sql_query, parameters)
-    db.commit()
-    result = cursor.fetchall()
-    db.commit()
+def stored_procedure_grant_pilot_license(db, personID, license):
+    try:
+        cursor = db.cursor()
+        sql_query = "CALL grant_pilot_license(%s, %s)"
+        parameters = (personID, license)
+        cursor.execute(sql_query, parameters)
+        db.commit()
+        result = cursor.fetchall()
+        db.commit()
+        return True  # Operation was successful
+    except mysql.connector.Error as e:
+        messagebox.showerror("Error", f"An error occurred: {e}")
+        return False  # Operation failed
 
 def stored_procedure_assign_pilot (db, flightID, personID):
-    cursor =db.cursor()
-    sql_query = "CALL assign_pilot(%s, %s)"
-    parameters = (flightID, personID)
-    cursor.execute(sql_query, parameters)
-    db.commit()
-    result = cursor.fetchall()
-    db.commit()
+    try:
+        cursor =db.cursor()
+        sql_query = "CALL assign_pilot(%s, %s)"
+        parameters = (flightID, personID)
+        cursor.execute(sql_query, parameters)
+        db.commit()
+        result = cursor.fetchall()
+        db.commit()
+        return True
+    except mysql.connector.Error as e:
+        messagebox.showerror("Error", f"An error occurred: {e}")
+        return False 
+    
 
 def stored_procedure_recycle_crew (db, flightID):
-    cursor =db.cursor()
-    sql_query = "CALL recycle_crew(%s)"
-    parameters = (flightID)
-    cursor.execute(sql_query, parameters)
-    db.commit()
-    result = cursor.fetchall()
-    db.commit()
+    try:
+        cursor =db.cursor()
+        sql_query = "CALL recycle_crew(%s)"
+        parameters = (flightID,)
+        cursor.execute(sql_query, parameters)
+        db.commit()
+        result = cursor.fetchall()
+        db.commit()
+        return True
+    except mysql.connector.Error as e:
+        messagebox.showerror("Error", f"An error occurred: {e}")
+        return False         
 
 def stored_procedure_remove_pilot_role (db, personID):
-    cursor =db.cursor()
-    sql_query = "CALL remove_pilot_role(%s)"
-    parameters = (personID)
-    cursor.execute(sql_query, parameters)
-    db.commit()
-    result = cursor.fetchall()
-    db.commit()
+    try:
+        cursor =db.cursor()
+        sql_query = "CALL remove_pilot_role(%s)"
+        parameters = (personID,)
+        cursor.execute(sql_query, parameters)
+        db.commit()
+        result = cursor.fetchall()
+        db.commit()
+        return True
+    except mysql.connector.Error as e:
+        messagebox.showerror("Error", f"An error occurred: {e}")
+        return False 
 
 def stored_procedure_passengers_disembark (db, flightID):
-    cursor =db.cursor()
-    sql_query = "CALL passengers_disembark(%s)"
-    parameters = (flightID)
-    cursor.execute(sql_query, parameters)
-    db.commit()
-    result = cursor.fetchall()
-    db.commit()
+    try:
+        cursor =db.cursor()
+        sql_query = "CALL passengers_disembark(%s)"
+        parameters = (flightID,)
+        cursor.execute(sql_query, parameters)
+        db.commit()
+        result = cursor.fetchall()
+        db.commit()
+        return True
+    except mysql.connector.Error as e:
+        messagebox.showerror("Error", f"An error occurred: {e}")
+        return False 
 
 def stored_procedure_remove_passenger_role (db, personID):
-    cursor =db.cursor()
-    sql_query = "CALL remove_passenger_role(%s)"
-    parameters = (personID)
-    cursor.execute(sql_query, parameters)
-    db.commit()
-    result = cursor.fetchall()
-    db.commit()
-
+    try:
+        cursor =db.cursor()
+        sql_query = "CALL remove_passenger_role(%s)"
+        parameters = (personID,)
+        cursor.execute(sql_query, parameters)
+        db.commit()
+        result = cursor.fetchall()
+        db.commit()
+        return True
+    except mysql.connector.Error as e:
+        messagebox.showerror("Error", f"An error occurred: {e}")
+        return False 
 
 
 

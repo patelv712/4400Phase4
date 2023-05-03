@@ -346,43 +346,75 @@ class home:
     '''
     def Passenger_Disembark(self):
         self.Passenger_Disembark = tk.Tk()
-        self.Passenger_Disembark.title ("Passenger Disembark")
-        self.Passenger_Disembark.geometry("700x400")    
+        self.Passenger_Disembark.title("Passenger Disembark")
+        self.Passenger_Disembark.geometry("700x400")
 
-        flightID = fetch_flightID (self.db)
+        flightID = fetch_flightID(self.db)
         sorted_flightID = sorted(flightID)
         label_flightID = tk.Label(self.Passenger_Disembark, text="flightID")
-        label_flightID.grid(row=0,column=0,padx=5,pady=5)
-        dropdown_flightID = ttk.Combobox (self.Passenger_Disembark, values = sorted_flightID)
-        dropdown_flightID.grid (row=0,column=1, padx=5, pady=5)  
+        label_flightID.grid(row=0, column=0, padx=5, pady=5)
+        dropdown_flightID = ttk.Combobox(
+            self.Passenger_Disembark, values=sorted_flightID
+        )
+        dropdown_flightID.grid(row=0, column=1, padx=5, pady=5)
 
-        cancel_button = tk.Button(self.Passenger_Disembark, text="Cancel", command=self.Passenger_Disembark.destroy)
-        cancel_button.grid(row=2,column=0, columnspan=2,pady=10)
-        recycle_crew_button = tk.Button(self.Passenger_Disembark, text="continue", command=lambda: 
-                                  stored_procedure_passengers_disembark (self.db,
-                                  dropdown_flightID.get()))
-        recycle_crew_button.grid(row=2, column=3, columnspan=2, pady=10)
-     
+        cancel_button = tk.Button(
+            self.Passenger_Disembark, text="Cancel", command=self.Passenger_Disembark.destroy
+        )
+        cancel_button.grid(row=2, column=0, columnspan=2, pady=10)
+        continue_button = tk.Button(
+            self.Passenger_Disembark,
+            text="Continue",
+            command=lambda: (
+                messagebox.showerror("Error", "Please select a flightID.")
+                if not dropdown_flightID.get()
+                else (
+                    messagebox.showinfo("Success", "Passengers successfully disembarked.")
+                    if stored_procedure_passengers_disembark(
+                        self.db, dropdown_flightID.get()
+                    )
+                    else None
+                )
+            ),
+        )
+        continue_button.grid(row=2, column=3, columnspan=2, pady=10)
+
     '''
         remove passenger role
     '''
     def Remove_Passenger_Role(self):
         self.Remove_Passenger_Role = tk.Tk()
-        self.Remove_Passenger_Role.title ("Remove Pilot Role")
-        self.Remove_Passenger_Role.geometry("700x400")    
+        self.Remove_Passenger_Role.title("Remove Passenger Role")
+        self.Remove_Passenger_Role.geometry("700x400")
 
-        personID = fetch_personID (self.db)
+        personID = fetch_personID(self.db)
         sorted_personID = sorted(personID)
         label_personID = tk.Label(self.Remove_Passenger_Role, text="personID")
-        label_personID.grid(row=0,column=0,padx=5,pady=5)
-        dropdown_personID = ttk.Combobox (self.Remove_Passenger_Role, values = sorted_personID)
-        dropdown_personID.grid (row=0,column=1, padx=5, pady=5)
+        label_personID.grid(row=0, column=0, padx=5, pady=5)
+        dropdown_personID = ttk.Combobox(
+            self.Remove_Passenger_Role, values=sorted_personID
+        )
+        dropdown_personID.grid(row=0, column=1, padx=5, pady=5)
 
-        cancel_button = tk.Button(self.Remove_Passenger_Role, text="Cancel", command=self.Remove_Passenger_Role.destroy)
-        cancel_button.grid(row=2,column=0, columnspan=2,pady=10)
-        remove_passenger_button = tk.Button(self.Remove_Passenger_Role, text="Remove Passenger", command=lambda: 
-                                  stored_procedure_remove_passenger_role (self.db,
-                                  dropdown_personID.get()))
+        cancel_button = tk.Button(
+            self.Remove_Passenger_Role, text="Cancel", command=self.Remove_Passenger_Role.destroy
+        )
+        cancel_button.grid(row=2, column=0, columnspan=2, pady=10)
+        remove_passenger_button = tk.Button(
+            self.Remove_Passenger_Role,
+            text="Remove Passenger",
+            command=lambda: (
+                messagebox.showerror("Error", "Please select a personID.")
+                if not dropdown_personID.get()
+                else (
+                    messagebox.showinfo("Success", "Passenger role successfully removed.")
+                    if stored_procedure_remove_passenger_role(
+                        self.db, dropdown_personID.get()
+                    )
+                    else None
+                )
+            ),
+        )
         remove_passenger_button.grid(row=2, column=3, columnspan=2, pady=10)
     '''
         grant pilots license
@@ -407,11 +439,22 @@ class home:
         dropdown_license_type.grid (row=1,column=1, padx=5, pady=5)
 
         cancel_button = tk.Button(self.Grant_Pilot_License, text="Cancel", command=self.Grant_Pilot_License.destroy)
-        cancel_button.grid(row=2,column=0, columnspan=2,pady=10)
-        grant_button = tk.Button(self.Grant_Pilot_License, text="Grant", command=lambda: 
-                                  stored_procedure_grant_pilot_license (self.db,
-                                  dropdown_personID.get(),
-                                  dropdown_license_type.get()))
+        cancel_button.grid(row=2,column=0, columnspan=2,pady=10)         
+        grant_button = tk.Button(
+            self.Grant_Pilot_License,
+            text="Grant",
+            command=lambda: (
+                messagebox.showerror("Error", "Please select both personID and license type.")
+                if not dropdown_personID.get() or not dropdown_license_type.get()
+                else (
+                    messagebox.showinfo("Success", "Pilot license successfully granted.")
+                    if stored_procedure_grant_pilot_license(
+                        self.db, dropdown_personID.get(), dropdown_license_type.get()
+                    )
+                    else None
+                )
+            ),
+        )
         grant_button.grid(row=2, column=3, columnspan=2, pady=10)        
     '''
         assign pilot
@@ -437,12 +480,24 @@ class home:
         dropdown_flightID.grid (row=1,column=1, padx=5, pady=5)      
 
         cancel_button = tk.Button(self.Assign_Pilot, text="Cancel", command=self.Assign_Pilot.destroy)
-        cancel_button.grid(row=2,column=0, columnspan=2,pady=10)
-        assign_button = tk.Button(self.Assign_Pilot, text="Assign", command=lambda: 
-                                  stored_procedure_assign_pilot (self.db,
-                                  dropdown_personID.get(),
-                                  dropdown_flightID.get()))
-        assign_button.grid(row=2, column=3, columnspan=2, pady=10)   
+        cancel_button.grid(row=2,column=0, columnspan=2,pady=10)   
+
+        assign_button = tk.Button(
+            self.Assign_Pilot,
+            text="Assign",
+            command=lambda: (
+                messagebox.showerror("Error", "Please select both personID and flightID.")
+                if not dropdown_personID.get() or not dropdown_flightID.get()
+                else (
+                    messagebox.showinfo("Success", "Pilot successfully assigned.")
+                    if stored_procedure_assign_pilot(
+                        self.db, dropdown_flightID.get(), dropdown_personID.get()
+                    )
+                    else None
+                )
+            ),
+        )
+        assign_button.grid(row=2, column=3, columnspan=2, pady=10)
     '''
         recycle crew
     '''
@@ -460,9 +515,21 @@ class home:
 
         cancel_button = tk.Button(self.Recycle_Crew, text="Cancel", command=self.Recycle_Crew.destroy)
         cancel_button.grid(row=2,column=0, columnspan=2,pady=10)
-        recycle_crew_button = tk.Button(self.Recycle_Crew, text="Recycle Crew", command=lambda: 
-                                  stored_procedure_recycle_crew (self.db,
-                                  dropdown_flightID.get()))
+        recycle_crew_button = tk.Button(
+            self.Recycle_Crew, 
+            text="Recycle Crew", 
+            command=lambda: (
+                messagebox.showerror("Error", "Please select flightID.")
+                if not dropdown_flightID.get()
+                else(
+                    messagebox.showinfo("Success", "Crew successfully recycled.")
+                    if stored_procedure_recycle_crew (
+                        self.db,dropdown_flightID.get()
+                    )
+                    else None
+                ),
+            )
+        )
         recycle_crew_button.grid(row=2, column=3, columnspan=2, pady=10)
 
     '''
@@ -482,9 +549,20 @@ class home:
 
         cancel_button = tk.Button(self.Remove_Pilot_Role, text="Cancel", command=self.Remove_Pilot_Role.destroy)
         cancel_button.grid(row=2,column=0, columnspan=2,pady=10)
-        remove_pilot_button = tk.Button(self.Remove_Pilot_Role, text="Remove Pilot", command=lambda: 
-                                  stored_procedure_remove_pilot_role (self.db,
-                                  dropdown_personID.get()))
+        remove_pilot_button = tk.Button(
+            self.Remove_Pilot_Role, 
+            text="Remove Pilot", 
+            command=lambda: (
+                messagebox.showerror("Error", "Please select personID.")
+                if not dropdown_personID.get()
+                else(
+                    messagebox.showinfo("Success", "Pilot successfully removed.")
+                    if stored_procedure_remove_pilot_role (self.db,dropdown_personID.get()
+                    )
+                    else None
+                )
+            ),
+        )
         remove_pilot_button.grid(row=2, column=3, columnspan=2, pady=10)
 
     '''
