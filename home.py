@@ -309,6 +309,10 @@ class home:
         flying_tail = flying_tail_entry.get()
         miles = int(miles_entry.get()) if miles_entry.get() else None
 
+        if not person_id:
+            messagebox.showerror("Error", "Person ID cannot be empty.")
+            return
+
         cursor = self.db.cursor()
 
         try:
