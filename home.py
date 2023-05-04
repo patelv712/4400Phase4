@@ -530,9 +530,13 @@ class home:
         last_name_entry = tk.Entry(add_people_page)
         last_name_entry.grid(row=2, column=1)
 
+        # tk.Label(add_people_page, text="Location ID:").grid(row=3, column=0, sticky="e")
+        # location_id_entry = tk.Entry(add_people_page)
+        # location_id_entry.grid(row=3, column=1)
         tk.Label(add_people_page, text="Location ID:").grid(row=3, column=0, sticky="e")
-        location_id_entry = tk.Entry(add_people_page)
-        location_id_entry.grid(row=3, column=1)
+        location_ids = fetch_locationID(self.db)  # Fetch location IDs from the database
+        location_id_dropdown = ttk.Combobox(add_people_page, values=location_ids)
+        location_id_dropdown.grid(row=3, column=1)
 
         tk.Label(add_people_page, text="Tax ID:").grid(row=4, column=0, sticky="e")
         tax_id_entry = tk.Entry(add_people_page)
@@ -557,7 +561,7 @@ class home:
         submit_button = tk.Button(add_people_page, text="Submit",
                                   command=lambda: self.add_person_to_db(add_people_page, person_id_entry,
                                                                         first_name_entry, last_name_entry,
-                                                                        location_id_entry, tax_id_entry,
+                                                                        location_id_dropdown, tax_id_entry,
                                                                         experience_entry, flying_airline_entry,
                                                                         flying_tail_entry, miles_entry))
         submit_button.grid(row=9, column=1, padx=10)
@@ -565,12 +569,12 @@ class home:
         cancel_button = tk.Button(add_people_page, text="Cancel", command=add_people_page.destroy)
         cancel_button.grid(row=9, column=0, padx=10)
 
-    def add_person_to_db(self, add_people_page, person_id_entry, first_name_entry, last_name_entry, location_id_entry,
+    def add_person_to_db(self, add_people_page, person_id_entry, first_name_entry, last_name_entry, location_id_dropdown,
                          tax_id_entry, experience_entry, flying_airline_entry, flying_tail_entry, miles_entry):
         person_id = person_id_entry.get()
         first_name = first_name_entry.get()
         last_name = last_name_entry.get()
-        location_id = location_id_entry.get()
+        location_id = location_id_dropdown.get()
         tax_id = tax_id_entry.get()
         experience = int(experience_entry.get()) if experience_entry.get() else None
         flying_airline = flying_airline_entry.get()
