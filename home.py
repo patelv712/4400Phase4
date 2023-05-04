@@ -151,8 +151,12 @@ class home:
         add_airplane.geometry("400x300")
         #make dropdown
         tk.Label(add_airplane, text="Airline ID:").grid(row=0, column=0, sticky="e")
-        airplane_id_entry = tk.Entry(add_airplane)
-        airplane_id_entry.grid(row=0, column=1)
+        airlineID = fetch_airlineID(self.db)
+        sorted_airlineID = sorted(airlineID)
+
+        airplane_id_dropdown = ttk.Combobox (add_airplane, values = sorted_airlineID)
+        airplane_id_dropdown.grid(row=0, column=1)
+
         #make dropdown
         tk.Label(add_airplane, text="Tail Num:").grid(row=1, column=0, sticky="e")
         tail_num_entry = tk.Entry(add_airplane)
@@ -167,8 +171,10 @@ class home:
         speed_entry.grid(row=3, column=1)
         #make dropdown
         tk.Label(add_airplane, text="Location ID:").grid(row=4, column=0, sticky="e")
-        location_id_entry = tk.Entry(add_airplane)
-        location_id_entry.grid(row=4, column=1)
+        locationID = fetch_locationID(self.db)
+        sorted_locationID = sorted(locationID)
+        location_id_dropDown = ttk.Combobox(add_airplane, values = sorted_locationID)
+        location_id_dropDown.grid(row=4, column=1)
 
         tk.Label(add_airplane, text="Plane Type:").grid(row=5, column=0, sticky="e")
         plane_type_entry = tk.Entry(add_airplane)
@@ -187,9 +193,9 @@ class home:
         jet_engines_entry = tk.Entry(add_airplane)
         jet_engines_entry.grid(row=8, column=1)
         submit_button = tk.Button(add_airplane, text="Submit",
-                                  command=lambda: self.add_airplane_to_db(add_airplane, airplane_id_entry,
+                                  command=lambda: self.add_airplane_to_db(add_airplane, airplane_id_dropdown,
                                                                         tail_num_entry, seat_capacity_entry,
-                                                                        speed_entry, location_id_entry,
+                                                                        speed_entry, location_id_dropDown,
                                                                         plane_type_entry, skids_entry,
                                                                         propellers_entry, jet_engines_entry))
         submit_button.grid(row=9, column=1, padx=10)
@@ -249,13 +255,15 @@ class home:
         state_entry.grid(row=3, column=1)
         #Make dropdown
         tk.Label(add_airport, text="Location ID:").grid(row=4, column=0, sticky="e")
-        location_id_entry = tk.Entry(add_airport)
-        location_id_entry.grid(row=4, column=1)
+        locationID = fetch_locationID(self.db)
+        sorted_locationID = sorted(locationID)
+        location_id_dropDown = ttk.Combobox(add_airport, values = sorted_locationID)
+        location_id_dropDown.grid(row=4, column=1)
 
         submit_button = tk.Button(add_airport, text="Submit",
                                   command=lambda: self.add_airport_to_db(add_airport,airport_id_entry, airport_name_entry,
                                                                         city_entry, state_entry,
-                                                                        location_id_entry))
+                                                                        location_id_dropDown))
         submit_button.grid(row=9, column=1, padx=10)
         cancel_button = tk.Button(add_airport, text="Cancel", command=add_airport.destroy)
         cancel_button.grid(row=9, column=0, padx=10)
@@ -530,13 +538,9 @@ class home:
         last_name_entry = tk.Entry(add_people_page)
         last_name_entry.grid(row=2, column=1)
 
-        # tk.Label(add_people_page, text="Location ID:").grid(row=3, column=0, sticky="e")
-        # location_id_entry = tk.Entry(add_people_page)
-        # location_id_entry.grid(row=3, column=1)
         tk.Label(add_people_page, text="Location ID:").grid(row=3, column=0, sticky="e")
-        location_ids = fetch_locationID(self.db)  # Fetch location IDs from the database
-        location_id_dropdown = ttk.Combobox(add_people_page, values=location_ids)
-        location_id_dropdown.grid(row=3, column=1)
+        location_id_entry = tk.Entry(add_people_page)
+        location_id_entry.grid(row=3, column=1)
 
         tk.Label(add_people_page, text="Tax ID:").grid(row=4, column=0, sticky="e")
         tax_id_entry = tk.Entry(add_people_page)
@@ -561,7 +565,7 @@ class home:
         submit_button = tk.Button(add_people_page, text="Submit",
                                   command=lambda: self.add_person_to_db(add_people_page, person_id_entry,
                                                                         first_name_entry, last_name_entry,
-                                                                        location_id_dropdown, tax_id_entry,
+                                                                        location_id_entry, tax_id_entry,
                                                                         experience_entry, flying_airline_entry,
                                                                         flying_tail_entry, miles_entry))
         submit_button.grid(row=9, column=1, padx=10)
@@ -569,12 +573,12 @@ class home:
         cancel_button = tk.Button(add_people_page, text="Cancel", command=add_people_page.destroy)
         cancel_button.grid(row=9, column=0, padx=10)
 
-    def add_person_to_db(self, add_people_page, person_id_entry, first_name_entry, last_name_entry, location_id_dropdown,
+    def add_person_to_db(self, add_people_page, person_id_entry, first_name_entry, last_name_entry, location_id_entry,
                          tax_id_entry, experience_entry, flying_airline_entry, flying_tail_entry, miles_entry):
         person_id = person_id_entry.get()
         first_name = first_name_entry.get()
         last_name = last_name_entry.get()
-        location_id = location_id_dropdown.get()
+        location_id = location_id_entry.get()
         tax_id = tax_id_entry.get()
         experience = int(experience_entry.get()) if experience_entry.get() else None
         flying_airline = flying_airline_entry.get()
