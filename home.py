@@ -54,8 +54,8 @@ class home:
         button8 = tk.Button(self.button_frame, text="Views and Simulation Cycle", width=20, height=2, command=self.views)
         button8.grid(row=3, column=1, padx=10, pady=10)
 
-        button9 = tk.Button(self.button_frame, text="Tables", width=20, height=2)
-        button9.grid(row=4, column=0, padx=10, pady=10)
+        # button9 = tk.Button(self.button_frame, text="Tables", width=20, height=2)
+        # button9.grid(row=4, column=0, padx=10, pady=10)
 
         self.mainpage.mainloop()
 
