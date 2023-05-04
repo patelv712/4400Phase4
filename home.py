@@ -150,7 +150,7 @@ class home:
         add_airplane.title("Add Airplane")
         add_airplane.geometry("400x300")
         #make dropdown
-        tk.Label(add_airplane, text="Airplane ID:").grid(row=0, column=0, sticky="e")
+        tk.Label(add_airplane, text="Airline ID:").grid(row=0, column=0, sticky="e")
         airplane_id_entry = tk.Entry(add_airplane)
         airplane_id_entry.grid(row=0, column=1)
         #make dropdown
