@@ -317,10 +317,10 @@ class home:
         deplane_dropdown.grid(row=3, column=1, padx=5, pady=5)
 
     
-        label_seat_number = tk.Label (self.c, text="seat number: ")
-        label_seat_number.grid (row=4,column=2, padx=5, pady=5, sticky = "e")
+        label_seat_number = tk.Label (self.purchase_ticket_and_seat, text="seat number: ")
+        label_seat_number.grid (row=3,column=2, padx=5, pady=5, sticky = "e")
         entry_seat_number = tk.Entry (self.purchase_ticket_and_seat)
-        entry_seat_number.grid (row=4,column=3, padx=5,pady=5)
+        entry_seat_number.grid (row=3,column=3, padx=5,pady=5)
 
 
 
