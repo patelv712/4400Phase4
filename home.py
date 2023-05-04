@@ -144,15 +144,19 @@ class home:
         button3 = tk.Button(self.button_frame, text="Extend Route", width=20, height=2, command=self.open_extend_route_page)
         button3.grid(row=1, column=0, padx=10, pady=10)
 
-    #1
+#1
     def add_airplane(self):
         add_airplane = tk.Toplevel(self.mainpage)
         add_airplane.title("Add Airplane")
         add_airplane.geometry("400x300")
         #make dropdown
         tk.Label(add_airplane, text="Airline ID:").grid(row=0, column=0, sticky="e")
-        airplane_id_entry = tk.Entry(add_airplane)
-        airplane_id_entry.grid(row=0, column=1)
+        airlineID = fetch_airlineID(self.db)
+        sorted_airlineID = sorted(airlineID)
+
+        airplane_id_dropdown = ttk.Combobox (add_airplane, values = sorted_airlineID)
+        airplane_id_dropdown.grid(row=0, column=1)
+
         #make dropdown
         tk.Label(add_airplane, text="Tail Num:").grid(row=1, column=0, sticky="e")
         tail_num_entry = tk.Entry(add_airplane)
@@ -167,8 +171,10 @@ class home:
         speed_entry.grid(row=3, column=1)
         #make dropdown
         tk.Label(add_airplane, text="Location ID:").grid(row=4, column=0, sticky="e")
-        location_id_entry = tk.Entry(add_airplane)
-        location_id_entry.grid(row=4, column=1)
+        locationID = fetch_locationID(self.db)
+        sorted_locationID = sorted(locationID)
+        location_id_dropDown = ttk.Combobox(add_airplane, values = sorted_locationID)
+        location_id_dropDown.grid(row=4, column=1)
 
         tk.Label(add_airplane, text="Plane Type:").grid(row=5, column=0, sticky="e")
         plane_type_entry = tk.Entry(add_airplane)
@@ -187,9 +193,9 @@ class home:
         jet_engines_entry = tk.Entry(add_airplane)
         jet_engines_entry.grid(row=8, column=1)
         submit_button = tk.Button(add_airplane, text="Submit",
-                                  command=lambda: self.add_airplane_to_db(add_airplane, airplane_id_entry,
+                                  command=lambda: self.add_airplane_to_db(add_airplane, airplane_id_dropdown,
                                                                         tail_num_entry, seat_capacity_entry,
-                                                                        speed_entry, location_id_entry,
+                                                                        speed_entry, location_id_dropDown,
                                                                         plane_type_entry, skids_entry,
                                                                         propellers_entry, jet_engines_entry))
         submit_button.grid(row=9, column=1, padx=10)
@@ -249,13 +255,15 @@ class home:
         state_entry.grid(row=3, column=1)
         #Make dropdown
         tk.Label(add_airport, text="Location ID:").grid(row=4, column=0, sticky="e")
-        location_id_entry = tk.Entry(add_airport)
-        location_id_entry.grid(row=4, column=1)
+        locationID = fetch_locationID(self.db)
+        sorted_locationID = sorted(locationID)
+        location_id_dropDown = ttk.Combobox(add_airport, values = sorted_locationID)
+        location_id_dropDown.grid(row=4, column=1)
 
         submit_button = tk.Button(add_airport, text="Submit",
                                   command=lambda: self.add_airport_to_db(add_airport,airport_id_entry, airport_name_entry,
                                                                         city_entry, state_entry,
-                                                                        location_id_entry))
+                                                                        location_id_dropDown))
         submit_button.grid(row=9, column=1, padx=10)
         cancel_button = tk.Button(add_airport, text="Cancel", command=add_airport.destroy)
         cancel_button.grid(row=9, column=0, padx=10)
@@ -282,7 +290,6 @@ class home:
             messagebox.showerror("Error", f"Error adding airport: {e}")
         finally:
             cursor.close()
-
 
     #6
     def purchase_ticket_and_seat(self):
