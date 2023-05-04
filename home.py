@@ -511,7 +511,7 @@ class home:
     def open_add_people_page(self):
         add_people_page = tk.Toplevel(self.mainpage)
         add_people_page.title("Add People")
-        add_people_page.geometry("400x300")
+        add_people_page.geometry("500x400")
 
         tk.Label(add_people_page, text="Person ID:").grid(row=0, column=0, sticky="e")
         person_id_entry = tk.Entry(add_people_page)
@@ -555,7 +555,10 @@ class home:
                                                                         location_id_entry, tax_id_entry,
                                                                         experience_entry, flying_airline_entry,
                                                                         flying_tail_entry, miles_entry))
-        submit_button.grid(row=9, column=0, columnspan=2)
+        submit_button.grid(row=9, column=1, padx=10)
+
+        cancel_button = tk.Button(add_people_page, text="Cancel", command=add_people_page.destroy)
+        cancel_button.grid(row=9, column=0, padx=10)
 
     def add_person_to_db(self, add_people_page, person_id_entry, first_name_entry, last_name_entry, location_id_entry,
                          tax_id_entry, experience_entry, flying_airline_entry, flying_tail_entry, miles_entry):
