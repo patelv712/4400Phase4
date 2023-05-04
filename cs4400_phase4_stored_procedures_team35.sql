@@ -690,46 +690,29 @@ delimiter ;
 flight must be on the ground, and either be at the start its route, or at the
 end of its route.  */
 -- -----------------------------------------------------------------------------
+
+
 drop procedure if exists retire_flight;
 delimiter //
 create procedure retire_flight (in ip_flightID varchar(50))
 sp_main: begin
+declare flight_status varchar(50);
+declare flight_position varchar(50);
+declare route_final varchar(50);
 
-   set @max_sequence = (select MAX (r.sequence) from route_path as r where r.routeID in (select f.routeID from flight as f where f.flightID = @ip_flightID));
-	set @c_progress = (select progress from flight where flightID = ip_flightID);
-	set @isOnGround = (select airplane_status from flight where flightID = ip_flightID);
-    
-		if @c_progress = 0
-		then set @newAPortL = (select departure from leg where leg.legID = 
-							(select route_path.legID from route_path where route_path.routeID = 
-							(select flight.routeID from flight where flight.flightID = ip_flightID)));
-		ELSEIF @c_progress = (@max_sequence - 1)
-		then set @enwAPortL = (select arrival from leg where leg.legID = 
-							(select route_path.legID from route_path where route_path.routeID = 
-							(select flight.routeID from flight where flight.flightID = ip_flightID)));
-		END IF;	
-    
-	if @isOnGround = 'on_ground' OR @c_progress = (@max_sequence or 0)
-    
-	then 
-    UPDATE pilot
-	set flying_airline = NULL, flying_tail = NULL
-	where flying_airline = (SELECT support_airline from flight WHERE flightID = ip_flightID)
-	AND flying_tail = (SELECT support_tail from flight WHERE flightID = ip_flightID);
-	
-	UPDATE person
-    set person.locationID = (select airport.locationID from airport where airportID = @newAPortL)
-    where person.locationID = (select airplane.locationID from airplane where tail_num = 
-							(select support_tail from flight where flightID = ip_flightID));
-	UPDATE airplane
-	set locationID = NULL
-	where tail_num = (SELECT support_tail FROM flight WHERE flightID = ip_flightID);
-    
-	Delete from flight where flightID = ip_flightID;
-	END IF;
+select airplane_status from flight where flightID = ip_flightID into flight_status;
+select progress from flight where flightID = ip_flightID into flight_position;
+select last_sequence from flight join (select routeID, max(sequence) as last_sequence from route_path group by routeID)
+as new_path on new_path.routeID = flight.routeID where flightID = ip_flightID into route_final;
 
+if flight_status = 'on_ground' and flight_position = route_final
+	then delete from flight where flight.flightID = ip_flightID;
+elseif flight_status = 'on_ground' and flight_position = '0'
+	then delete from flight where flight.flightID = ip_flightID;
+end if;
 end //
 delimiter ;
+
 
 -- [17] remove_passenger_role()
 -- -----------------------------------------------------------------------------
@@ -917,72 +900,56 @@ JOIN airplane ON (
 )
 GROUP BY flight_in_flight_leg_info.departure, flight_in_flight_leg_info.arrival;
 
-  
 
+-- --------------------------------------------------------------------------
 -- [20] flights_on_the_ground()
--- -----------------------------------------------------------------------------
-/* This view describes where flights that are currently on the ground are located. */
--- -----------------------------------------------------------------------------
-CREATE OR REPLACE VIEW flight_on_ground_info AS
-SELECT
-  flight.*,
-  route_path.legID,
-  CASE
-    WHEN flight.progress = 0 THEN flight_with_departure_arrival.start_departure
-    ELSE leg.arrival
-  END AS departing_from
-FROM flight
-LEFT JOIN route_path ON (
-  flight.routeID = route_path.routeID
-  AND flight.progress = route_path.sequence
-)
-LEFT JOIN leg ON route_path.legID = leg.legID
-JOIN flight_with_departure_arrival ON flight.flightID = flight_with_departure_arrival.flightID
-WHERE flight.airplane_status = 'on_ground';
-
-
 create or replace view flights_on_the_ground (departing_from, num_flights,
-	flight_list, earliest_arrival, latest_arrival, airplane_list) as 
-SELECT
-  departing_from,
-  COUNT(*) AS num_flights,
-  GROUP_CONCAT(flightID) AS flight_list,
-  MIN(next_time) AS earliest_arrival,
-  MAX(next_time) AS latest_arrival,
-  GROUP_CONCAT((
-    SELECT locationID
-    FROM airplane
-    WHERE airplane.airlineID = flight_on_ground_info.support_airline
-      AND airplane.tail_num = flight_on_ground_info.support_tail
-  )) AS airplane_list
-FROM flight_on_ground_info
-GROUP BY departing_from;
+      flight_list, earliest_arrival, latest_arrival, airplane_list) as
+select
+      departure as departing_from,
+    count(flightid) as num_flights,
+    flightid as flight_list,
+    min(next_time) as earliest_arrival,
+      max(next_time) as latest_arrival,
+      a.locationid as airplane_list
+from
+    (flight join airplane a on a.tail_num = support_tail) natural join (leg l join
+route_path rp on l.legid = rp.legid)
+ where
+      airplane_status = 'on_ground' and progress = sequence - 1
+group by
+locationid, flightid, departure, arrival
+order by flight_list asc;
 
 -- [21] people_in_the_air()
 -- -----------------------------------------------------------------------------
 /* This view describes where people who are currently airborne are located. */
 -- -----------------------------------------------------------------------------
-create or replace view people_in_the_air (departing_from, arriving_at, num_airplanes,
-	airplane_list, flight_list, earliest_arrival, latest_arrival, num_pilots,
-	num_passengers, joint_pilots_passengers, person_list) as
-SELECT
-  flights_in_the_air.departing_from,
-  flights_in_the_air.arriving_at,
-  flights_in_the_air.num_flights AS num_airplanes,
-  flights_in_the_air.airplane_list,
-  flights_in_the_air.flight_list,
-  flights_in_the_air.earliest_arrival,
-  flights_in_the_air.latest_arrival,
-  COUNT(pilot.personID) AS num_pilots,
-  COUNT(passenger.personID) AS num_passengers,
-  COUNT(person.personID) AS joint_pilots_passengers,
-  GROUP_CONCAT(person.personID) AS person_list
-FROM flights_in_the_air
-JOIN airplane ON FIND_IN_SET(airplane.locationID, flights_in_the_air.airplane_list) > 0
-JOIN person ON person.locationID = airplane.locationID
-LEFT JOIN pilot ON pilot.personID = person.personID AND pilot.flying_airline = airplane.airlineID AND pilot.flying_tail = airplane.tail_num
-LEFT JOIN passenger ON passenger.personID = person.personID
-GROUP BY flights_in_the_air.departing_from, flights_in_the_air.arriving_at;
+create or replace view people_in_the_air (departing_from, arriving_at,
+num_airplanes,
+      airplane_list, flight_list, earliest_arrival, latest_arrival, num_pilots,
+      num_passengers, joint_pilots_passengers, person_list) as
+select
+    leg.departure as departing_from,
+    leg.arrival as arriving_at,
+    count(distinct a.tail_num) as num_airplanes,
+    group_concat(distinct a.locationid) as airplane_list,
+    group_concat(distinct f.flightid) as flight_list,
+    min(next_time) as earliest_arrival,
+    max(next_time) as latest_arrival,
+    count(distinct case when person.personid in (select pilot.personid from pilot)
+then person.personid else null end) as num_pilots,
+    count(distinct case when person.personid in (select passenger.personid from
+passenger) then person.personid else null end) as num_passengers,
+    count(distinct person.personid) as joint_pilots_passengers,
+    group_concat(distinct person.personid) as person_list
+from flight f
+join airplane a on f.support_airline = a.airlineid and f.support_tail = a.tail_num
+join person on a.locationid = person.locationid
+join route_path on f.routeid = route_path.routeid and progress = sequence
+join leg on route_path.legid = leg.legid
+where airplane_status = 'in_flight'
+group by leg.departure, leg.arrival;
 
 -- [22] people_on_the_ground()
 -- -----------------------------------------------------------------------------
@@ -990,21 +957,25 @@ GROUP BY flights_in_the_air.departing_from, flights_in_the_air.arriving_at;
 -- -----------------------------------------------------------------------------
 create or replace view people_on_the_ground (departing_from, airport, airport_name,
 	city, state, num_pilots, num_passengers, joint_pilots_passengers, person_list) as
-SELECT
-  airport.airportID AS departing_from,
-  airport.locationID AS airport,
-  airport.airport_name,
-  airport.city,
-  airport.state,
-  COUNT(pilot.personID) AS num_pilots,
-  COUNT(passenger.personID) AS num_passengers,
-  COUNT(person.personID) AS joint_pilots_passengers,
-  GROUP_CONCAT(person.personID) AS person_list
-FROM airport
-JOIN person ON person.locationID = airport.locationID
-LEFT JOIN pilot ON pilot.personID = person.personID
-LEFT JOIN passenger ON passenger.personID = person.personID
-GROUP BY airport.airportID, airport.locationID, airport.airport_name, airport.city, airport.state;
+select
+	a.airportID as departing_from,
+    p.locationID as airport,
+    a.airport_name,
+    a.city,
+    a.state,
+    count(pil.taxID) as num_pilots,
+    count(pa.miles) as num_passengers,
+    count(*) as joint_pilots_passengers,
+    group_concat(p.personID separator ',') as person_list
+from person p
+    left join passenger pa on pa.personID = p.personID
+    left join pilot pil on pil.personID = p.personID
+    natural join airport a
+group by a.airportID;
+
+
+
+
 
 -- [23] route_summary()
 -- -----------------------------------------------------------------------------
