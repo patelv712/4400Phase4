@@ -10,6 +10,27 @@ def fetch_personID (db):
     persons = cursor.fetchall()
     return [person[0] for person in persons]
 
+def fetch_airportID (db): #departure, arrival, ariportid
+    query = "Select airportID from airport"
+    cursor = db.cursor()
+    cursor.execute(query)
+    airports = cursor.fetchall()
+    return [airport[0] for airport in airports]
+
+def fetch_locationID (db): #departure, arrival, ariportid
+    query = "Select locationID from location"
+    cursor = db.cursor()
+    cursor.execute(query)
+    locations = cursor.fetchall()
+    return [location[0] for location in locations]
+
+def fetch_ticketID (db): 
+    query = "Select ticketID from ticket"
+    cursor = db.cursor()
+    cursor.execute(query)
+    tickets = cursor.fetchall()
+    return [ticket[0] for ticket in tickets]
+
 def fetch_license_type (db):
     query = "Select distinct license from pilot_licenses"
     cursor = db.cursor()

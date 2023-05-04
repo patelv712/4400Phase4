@@ -54,8 +54,8 @@ class home:
         button8 = tk.Button(self.button_frame, text="Views and Simulation Cycle", width=20, height=2, command=self.views)
         button8.grid(row=3, column=1, padx=10, pady=10)
 
-        # button9 = tk.Button(self.button_frame, text="Tables", width=20, height=2)
-        # button9.grid(row=4, column=0, padx=10, pady=10)
+        button9 = tk.Button(self.button_frame, text="Tables", width=20, height=2)
+        button9.grid(row=4, column=0, padx=10, pady=10)
 
         self.mainpage.mainloop()
 
@@ -149,11 +149,11 @@ class home:
         add_airplane = tk.Toplevel(self.mainpage)
         add_airplane.title("Add Airplane")
         add_airplane.geometry("400x300")
-
+        #make dropdown
         tk.Label(add_airplane, text="Airplane ID:").grid(row=0, column=0, sticky="e")
         airplane_id_entry = tk.Entry(add_airplane)
         airplane_id_entry.grid(row=0, column=1)
-
+        #make dropdown
         tk.Label(add_airplane, text="Tail Num:").grid(row=1, column=0, sticky="e")
         tail_num_entry = tk.Entry(add_airplane)
         tail_num_entry.grid(row=1, column=1)
@@ -165,7 +165,7 @@ class home:
         tk.Label(add_airplane, text="Speed:").grid(row=3, column=0, sticky="e")
         speed_entry = tk.Entry(add_airplane)
         speed_entry.grid(row=3, column=1)
-
+        #make dropdown
         tk.Label(add_airplane, text="Location ID:").grid(row=4, column=0, sticky="e")
         location_id_entry = tk.Entry(add_airplane)
         location_id_entry.grid(row=4, column=1)
@@ -244,7 +244,7 @@ class home:
         tk.Label(add_airport, text="State:").grid(row=3, column=0, sticky="e")
         state_entry = tk.Entry(add_airport)
         state_entry.grid(row=3, column=1)
-
+        #Make dropdown
         tk.Label(add_airport, text="Location ID:").grid(row=4, column=0, sticky="e")
         location_id_entry = tk.Entry(add_airport)
         location_id_entry.grid(row=4, column=1)
@@ -284,11 +284,14 @@ class home:
         self.purchase_ticket_and_seat = tk.Tk()
         self.purchase_ticket_and_seat.title ("Purchase Ticket and Seat")
         self.purchase_ticket_and_seat.geometry("700x400")
+        #make dropdown
 
-        label_ticketID = tk.Label(self.purchase_ticket_and_seat, text = "TicketID: ")
-        label_ticketID.grid (row = 0, column = 0, padx = 5, pady = 5, sticky = "e")
-        entry_ticketID = tk.Entry(self.purchase_ticket_and_seat)
-        entry_ticketID.grid (row=0, column=1, padx=5, pady=5)
+        ticketID = fetch_ticketID(self.db)
+        ticketID_label = tk.Label(self.purchase_ticket_and_seat, text="TicketID:")
+        ticketID_dropdown = ttk.Combobox(self.purchase_ticket_and_seat, values = ticketID)
+        ticketID_label.grid(row=0, column=0, padx=5, pady=5)
+        ticketID_dropdown.grid(row=0, column=1, padx=5, pady=5)
+
 
         label_cost = tk.Label(self.purchase_ticket_and_seat, text="cost: ")
         label_cost.grid(row = 1, column= 0, padx=5, pady=5, sticky="e")
@@ -304,31 +307,35 @@ class home:
         label_customer.grid(row=1, column=2, padx=20, pady=5, sticky="e")
         entry_customer = tk.Entry(self.purchase_ticket_and_seat)
         entry_customer.grid (row=1, column=3, padx=5, pady=5)
+        #make dropdown
 
-        label_deplane_at = tk.Label (self.purchase_ticket_and_seat, text="deplane at: ")
-        label_deplane_at.grid (row=3,column=2, padx=5, pady=5, sticky = "e")
-        entry_deplane_at = tk.Entry (self.purchase_ticket_and_seat)
-        entry_deplane_at.grid (row=3,column=3, padx=5,pady=5)
+
+        deplane = fetch_airportID(self.db)
+        deplane_label = tk.Label(self.purchase_ticket_and_seat, text="Deplane:")
+        deplane_dropdown = ttk.Combobox(self.purchase_ticket_and_seat, values = deplane)
+        deplane_label.grid(row=3, column=0, padx=5, pady=5)
+        deplane_dropdown.grid(row=3, column=1, padx=5, pady=5)
+
     
-        label_seat_number = tk.Label (self.purchase_ticket_and_seat, text="seat number: ")
-        label_seat_number.grid (row=3,column=2, padx=5, pady=5, sticky = "e")
+        label_seat_number = tk.Label (self.c, text="seat number: ")
+        label_seat_number.grid (row=4,column=2, padx=5, pady=5, sticky = "e")
         entry_seat_number = tk.Entry (self.purchase_ticket_and_seat)
-        entry_seat_number.grid (row=3,column=3, padx=5,pady=5)
+        entry_seat_number.grid (row=4,column=3, padx=5,pady=5)
 
 
 
         cancel_button = tk.Button(self.purchase_ticket_and_seat, text="Cancel", command=self.purchase_ticket_and_seat.destroy)
-        cancel_button.grid(row=4,column=0, columnspan=2,pady=10)
+        cancel_button.grid(row=5,column=0, columnspan=2,pady=10)
 
         submit_button = tk.Button(self.purchase_ticket_and_seat, text="Submit", command=lambda: 
                                   stored_procedure_purchase_ticket_and_seat (self.db,
-                                                entry_ticketID.get(),
+                                                ticketID_dropdown.get(),
                                                 entry_cost.get(), 
                                                 entry_carrier.get(),
                                                 entry_customer.get(), 
-                                                entry_deplane_at.get(),
+                                                deplane_dropdown.get(),
                                                 entry_seat_number.get()))
-        submit_button.grid(row=4, column=2, columnspan=2, pady=10)
+        submit_button.grid(row=5, column=2, columnspan=2, pady=10)
 
 
         cursor = self.db.cursor()
@@ -348,21 +355,27 @@ class home:
         label_distance.grid(row = 1, column= 0, padx=5, pady=5, sticky="e")
         entry_distance = tk.Entry(self.add_update_leg)
         entry_distance.grid (row=1, column=1, padx=5, pady=5)
+        #make dropdown
 
-        label_departure = tk.Label(self.add_update_leg, text="departure: ")
-        label_departure.grid(row = 0, column=2, padx=20, pady=5, sticky="e")
-        entry_departure = tk.Entry(self.add_update_leg)
-        entry_departure.grid (row=0, column=3, padx=5, pady=5)
+        departures = fetch_airportID(self.db)
+        departure_label = tk.Label(self.add_update_leg, text="Departure ID:")
+        departure_dropdown = ttk.Combobox(self.add_update_leg, values = departures)
+        departure_label.grid(row=2, column=0, padx=5, pady=5)
+        departure_dropdown.grid(row=2, column=1, padx=5, pady=5)
 
-        label_arrival = tk.Label(self.add_update_leg, text="arrival: ")
-        label_arrival.grid(row=1, column=2, padx=20, pady=5, sticky="e")
-        entry_arrival = tk.Entry(self.add_update_leg)
-        entry_arrival.grid (row=1, column=3, padx=5, pady=5)
+
+        # Populate the dropdown with arrivals from the database
+        arrivals = fetch_airportID(self.db)
+        arrival_label = tk.Label(self.add_update_leg, text="Arrival ID:")
+        arrival_dropdown = ttk.Combobox(self.add_update_leg, values = arrivals)
+        arrival_label.grid(row=3, column=0, padx=5, pady=5)
+        arrival_dropdown.grid(row=3, column=1, padx=5, pady=5)
+
 
         cancel_button = tk.Button(self.add_update_leg, text="Cancel", command=self.add_update_leg.destroy)
         cancel_button.grid(row=4,column=0, columnspan=2,pady=100)
         submit_button = tk.Button(self.add_update_leg, text="Update", command=lambda: 
-                                  stored_procedure_update_leg(self.db, entry_legID.get(), entry_distance.get(), entry_departure.get(),entry_arrival.get() ))
+                                  stored_procedure_update_leg(self.db, entry_legID.get(), entry_distance.get(), departure_dropdown.get(),arrival_dropdown.get() ))
         submit_button.grid(row=4, column=2, columnspan=2, pady=100)
 
     #8
@@ -377,16 +390,19 @@ class home:
         entry_routeID = tk.Entry(self.start_route)
         entry_routeID.grid (row=0, column=1, padx=5, pady=5)
 
+        leg_id_label = tk.Label(self.start_route, text="Leg ID:")
+        leg_id_dropdown = ttk.Combobox(self.start_route)
+        leg_id_label.grid(row=2, column=0, padx=5, pady=5)
+        leg_id_dropdown.grid(row=2, column=1, padx=5, pady=5)
 
-        label_legID = tk.Label(self.start_route, text = "leg id: ")
-        label_legID.grid (row = 1, column = 0, padx = 5, pady = 5, sticky = "e")
-        entry_legID = tk.Entry(self.start_route)
-        entry_legID.grid (row=1, column=1, padx=5, pady=5)
+        # Populate the dropdown with legIDs from the database
+        leg_ids = self.get_leg_ids()
+        leg_id_dropdown['values'] = leg_ids
 
         cancel_button = tk.Button(self.start_route, text="Cancel", command=self.start_route.destroy)
         cancel_button.grid(row=4,column=0, columnspan=2,pady=100)
         submit_button = tk.Button(self.start_route, text="Update", command=lambda: 
-                                  stored_procedure_start_route(self.db, entry_routeID.get(), entry_legID.get()))
+                                  stored_procedure_start_route(self.db, entry_routeID.get(), leg_id_dropdown.get()))
         submit_button.grid(row=4, column=2, columnspan=2, pady=100)
     '''
            Query 9 Extend Route
