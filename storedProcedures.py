@@ -59,6 +59,14 @@ def fetch_flightID (db):
     flightIDs = cursor.fetchall()
     return [flightID[0] for flightID in flightIDs]
 
+def fetch_plane_state(db, flightID):
+    cursor = db.cursor()
+    query = "SELECT airplane_status FROM flight WHERE flightID = %s"
+    parameters = (flightID,)
+    cursor.execute(query, parameters)
+    result = cursor.fetchone()
+    return result[0] if result else None
+
 #6
 def stored_procedure_purchase_ticket_and_seat(db, ticketID, cost, carrier, customer, deplane_at, seat_number):
     cursor = db.cursor()
@@ -108,50 +116,148 @@ def stored_procedure_start_route(db, routeID, legID):
     finally:
         cursor.close()
 
+# 5 Offer Flight
 def stored_procedure_offer_flight(db, flightID, routeID, support_airline, support_tail, progress, airplane_status, next_time):
-    cursor = db.cursor()
-    sql_query = "CALL offer_flight(%s, %s, %s, %s, %s, %s, %s)"
-    # query = "call offer_flight('UN_3403', 'westbound_north_milk_run', 'American', 'n380sd', 0, 'on_ground', '15:30:00')"
-    parameters = (flightID, routeID, support_airline, support_tail, progress, airplane_status, next_time)
-    cursor.execute(sql_query, parameters)
-    # cursor.execute(query)
-    db.commit()
-    result = cursor.fetchall()   
+    if not flightID:
+        messagebox.showerror("Error", "flightID cannot be empty.")
+        return  
+    if not routeID:
+        messagebox.showerror("Error", "routeID cannot be empty.")
+        return  
+    try:
+        returnFlag = 0
+        cursor = db.cursor()
+        sql_query = "CALL offer_flight(%s, %s, %s, %s, %s, %s, %s)"
+        # query = "call offer_flight('UN_3403', 'westbound_north_milk_run', 'American', 'n380sd', 0, 'on_ground', '15:30:00')"
+        parameters = (flightID, routeID, support_airline, support_tail, progress, airplane_status, next_time)
+        cursor.execute(sql_query, parameters)
+        # cursor.execute(query)
+        result = cursor.fetchall()   
+        db.commit()
+    except mysql.connector.Error as e:
+        messagebox.showerror("Error", f"Error Offer Flight: {e}")
+        returnFlag = 1
+    finally:
+        if returnFlag == 1:
+            return
+        messagebox.showinfo("Task Finished", f"Successfully Offer Flight!")
+        cursor.close()
 
+# 10 Flight Landing
 def stored_procedure_flight_landing(db,flightID):
-    cursor = db.cursor()
-    sql_query = "Call flight_landing(%s)"
-    parameters = (flightID,)
-    cursor.execute(sql_query, parameters)
-    db.commit()
-    result = cursor.fetchall()
+    if not flightID:
+        messagebox.showerror("Error", "flightID cannot be empty.")
+        return
+    
+    plane_state = fetch_plane_state(db, flightID)
+    print(plane_state)
+    if plane_state is None:
+        messagebox.showerror("Error", "No matching flightID found in the database.")
+        return
+    if plane_state == 'on_ground':
+        messagebox.showerror("Error", "The flight has already landed.")
+        return
+    try:
+        cursor = db.cursor()
+        sql_query = "Call flight_landing(%s)"
+        parameters = (flightID,)
+        cursor.execute(sql_query, parameters)
+        result = cursor.fetchall()
+        db.commit()
+    except mysql.connector.Error as e:
+        messagebox.showerror("Error", f"Error flight landing: {e}")
+    finally:
+        messagebox.showinfo("Task Finished", f"Successfully land the flight!")
+        cursor.close()
 
+# 11 Flight Takeoff
 def stored_procedure_flight_takeoff(db,flightID):
-    cursor = db.cursor()
-    sql_query = "Call flight_takeoff(%s)"
-    parameters = (flightID,)
-    cursor.execute(sql_query, parameters)
-    db.commit()
-    result = cursor.fetchall()
-    db.commit()
+    if not flightID:
+        messagebox.showerror("Error", "flightID cannot be empty.")
+        return
+    
+    plane_state = fetch_plane_state(db, flightID)
+    if plane_state is None:
+        messagebox.showerror("Error", "No matching flightID found in the database.")
+        return
+    if plane_state == 'in_flight':
+        messagebox.showerror("Error", "The flight has already token off.")
+        return
+    try: 
+        cursor = db.cursor()
+        sql_query = "Call flight_takeoff(%s)"
+        parameters = (flightID,)
+        cursor.execute(sql_query, parameters)
+        result = cursor.fetchall()
 
+        db.commit()
+    except mysql.connector.Error as e:
+        messagebox.showerror("Error", f"Error flight takeoff: {e}")
+    finally:
+        messagebox.showinfo("Task Finished", f"Successfully takeoff the flight!")
+        cursor.close()
+
+# 16 Retire Flight
 def stored_procedure_retire_flight(db,flightID):
-    cursor = db.cursor()
-    sql_query = "Call retire_flight(%s)"
-    parameters = (flightID,)
-    cursor.execute(sql_query, parameters)
-    db.commit()
-    result = cursor.fetchall()
-    db.commit()
+    if not flightID:
+        messagebox.showerror("Error", "flightID cannot be empty.")
+        return
+    plane_state = fetch_plane_state(db, flightID)
+    if plane_state is None:
+        messagebox.showerror("Error", "No matching flightID found in the database.")
+        return
+    if plane_state == 'in_flight':
+        messagebox.showerror("Error", "The flight cannot be retired when in air.")
+        return   
+    try:
+        returnFlag = 0
+        cursor = db.cursor()
+        sql_query = "Call retire_flight(%s)"
+        parameters = (flightID,)
+        cursor.execute(sql_query, parameters)
+        result = cursor.fetchall()
+        db.commit()
+    except mysql.connector.Error as e:
+        messagebox.showerror("Error", f"Error flight retire: {e}")
+        returnFlag = 1
 
+    finally:
+        if returnFlag == 1:
+            return
+        messagebox.showinfo("Task Finished", f"Successfully retire the flight!")
+        cursor.close()        
+
+
+
+# 12 Passenger Board
 def stored_procedure_passenger_board(db,flightID):
-    cursor = db.cursor()
-    sql_query = "Call passengers_board(%s)"
-    parameters = (flightID,)
-    cursor.execute(sql_query, parameters)
-    db.commit()
-    result = cursor.fetchall()
-    db.commit()
+    if not flightID:
+        messagebox.showerror("Error", "flightID cannot be empty.")
+        return
+    
+    plane_state = fetch_plane_state(db, flightID)
+    if plane_state is None:
+        messagebox.showerror("Error", "No matching flightID found in the database.")
+        return
+    if plane_state == 'in_flight':
+        messagebox.showerror("Error", "The flight cannot be boarded when in air.")
+        return   
+    try:
+        returnFlag = 0
+        cursor = db.cursor()
+        sql_query = "Call passengers_board(%s)"
+        parameters = (flightID,)
+        cursor.execute(sql_query, parameters)
+        result = cursor.fetchall()
+        db.commit()
+    except mysql.connector.Error as e:
+        messagebox.showerror("Error", f"Error passenger board: {e}")
+        returnFlag = 1
+    finally:
+        if returnFlag == 1:
+            return
+        messagebox.showinfo("Task Finished", f"Successfully board passengers!")
+        cursor.close()                   
 
 def stored_procedure_grant_pilot_license(db, personID, license):
     try:
