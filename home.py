@@ -192,7 +192,10 @@ class home:
                                                                         speed_entry, location_id_entry,
                                                                         plane_type_entry, skids_entry,
                                                                         propellers_entry, jet_engines_entry))
-        submit_button.grid(row=9, column=0, columnspan=2)
+        submit_button.grid(row=9, column=1, padx=10)
+
+        cancel_button = tk.Button(add_airplane, text="Cancel", command=add_airplane.destroy)
+        cancel_button.grid(row=9, column=0, padx=10)
 
     def add_airplane_to_db(self, add_airplane, airplane_id_entry, tail_num_entry, seat_capacity_entry, speed_entry,
                          location_id_entry, plane_type_entry, skids_entry, propellers_entry, jet_engines_entry):
@@ -253,7 +256,9 @@ class home:
                                   command=lambda: self.add_airport_to_db(add_airport,airport_id_entry, airport_name_entry,
                                                                         city_entry, state_entry,
                                                                         location_id_entry))
-        submit_button.grid(row=9, column=0, columnspan=2)
+        submit_button.grid(row=9, column=1, padx=10)
+        cancel_button = tk.Button(add_airport, text="Cancel", command=add_airport.destroy)
+        cancel_button.grid(row=9, column=0, padx=10)
 
     def add_airport_to_db(self, add_airport,airport_id_entry, airport_name_entry, city_entry, state_entry,location_id_entry):
         airport_id = airport_id_entry.get()
